@@ -1,0 +1,6 @@
+{
+  "name": "Your Career Launch Platform",
+  "description": "Practical apprenticeships and structured professional mentorship for university and college students to build in-demand skills and career confidence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
