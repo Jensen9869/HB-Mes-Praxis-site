@@ -30,6 +30,9 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [alreadyApplied, setAlreadyApplied] = useState(false);
   const [showIntegrationSpec, setShowIntegrationSpec] = useState(false);
 
   // Sync initial plan if passed
@@ -93,10 +96,38 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
+    if (!validate()) return;
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try{
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/enrolment`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          fullName,
+          email,
+          institution,
+          graduationYear: Number(gradYear),
+          programme: selectedPlanId,
+          track: selectedTrack,
+        }),
+      });
+      if (!res.ok){
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Request failed (${res.status})`);
+      }
+      const data = await res.json();
+      setAlreadyApplied(Boolean(data.existing));
+      
       setIsSubmitted(true);
+    }catch (err){
+      setSubmitError(err instanceof Error ? err.message: 'Something went wrong, please try again');
+    }finally{
+      setIsSubmitting(false);
     }
   };
 
@@ -374,14 +405,21 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                   <strong>Notice:</strong> This is an interactive application review flow. No live credit card is charged at this time. Live payment webhooks and student portal authentication hook points are wired below.
                 </p>
               </div>
-
+              
+              {submitError && (
+                <p className='text-xs text-red-600 flex items-center gap-1'>
+                  <AlertCircle className='w-3.5 h-3.5' />
+                  {submitError}
+                </p>
+              )}
               {/* Actions */}
               <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
                 <button
                   type="submit"
+                  disabled= {isSubmitting}
                   className="w-full sm:flex-1 py-3 px-6 text-sm font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>Submit Application Review</span>
+                  <span>{isSubmitting ? 'Submitting...' : 'Submit Application Review'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
                 <button
@@ -440,10 +478,14 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
               
               <div className="space-y-2">
                 <h3 className="text-2xl font-bold text-[#102a43]">
-                  Application Received for Review
+                  {alreadyApplied ? 'We already have your application' : 'Application Received for Review'}
                 </h3>
                 <p className="text-sm text-slate-600 max-w-md mx-auto">
-                  Thank you, <strong className="text-slate-900">{fullName}</strong>. Your enrolment interest for the <strong className="text-slate-900">{plan.name}</strong> ({selectedTrack.toUpperCase()} track) has been recorded in the platform pipeline.
+                  {alreadyApplied ? (
+                    <> Thank you, <strong className="text-slate-900">{fullName}</strong>. Your earlier application for the <strong className="text-slate-900">{plan.name}</strong> is still in our queue — no need to submit again. </>
+                  ):(
+                    <> Thank you, <strong className="text-slate-900">{fullName}</strong>. Your enrolment interest for the <strong className="text-slate-900">{plan.name}</strong> ({selectedTrack.toUpperCase()} track) has been recorded. </>
+                  )}
                 </p>
               </div>
 
