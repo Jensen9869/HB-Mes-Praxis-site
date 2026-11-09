@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { sendEmail } from "./email";
 
-type Bindings = { career_launch_db: D1Database };
-const app = new Hono<{ Bindings: Bindings }>();
+const app = new Hono<{ Bindings: Env }>();
 
 app.use(
   "/api/*",
@@ -15,6 +15,12 @@ app.use(
 );
 
 app.get("/api/health", (c) => c.json({ ok: true }));
+
+const PROGRAMME_LABELS: Record<string, string> = {
+  "apprenticeship": "Apprenticeship Programme (12 months)",
+  "mentorship-6mo": "Professional Mentorship (6 months)",
+  "mentorship-3mo": "Professional Mentorship (3 months)",
+};
 
 app.post("/api/enrolment", async (c) => {
   const b = await c.req.json<{
@@ -63,6 +69,20 @@ app.post("/api/enrolment", async (c) => {
   await db.prepare(
     'INSERT INTO enrolments (id, user_id, programme, track) VALUES (?,?,?,?)'
   ).bind(enrolmentId, user.id, b.programme, b.track ?? null).run()
+
+  try{
+    await sendEmail(c.env.POSTAL_API_KEY, {
+      to: b.email,
+      subject: "We received your application — Career Launch Platform",
+      html: `
+        <p>Hi ${b.fullName},</p>
+        <p>Thanks for applying to the <strong>${PROGRAMME_LABELS[b.programme] ?? b.programme}</strong> programme. We have your application and will be in touch by email.</p>
+        <p>— Career Launch Platform</p>
+      `,
+    })
+  }catch(err){
+    console.error("Confirmation email failed", err);
+  }
   return c.json({enrolmentId}, 201)
 });
 
