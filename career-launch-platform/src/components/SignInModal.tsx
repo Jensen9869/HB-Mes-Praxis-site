@@ -1,27 +1,48 @@
-import React, { useState } from 'react';
-import { X, LogIn, Mail, CheckCircle2, AlertCircle } from 'lucide-react';
-import { BRAND_CONFIG } from '../config/platformConfig';
+import React, { useState } from "react";
+import { X, LogIn, Mail, CheckCircle2, AlertCircle } from "lucide-react";
+import { BRAND_CONFIG } from "../config/platformConfig";
 
 interface SignInModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => {
-  const [email, setEmail] = useState('');
+export const SignInModal: React.FC<SignInModalProps> = ({
+  isOpen,
+  onClose,
+}) => {
+  const [email, setEmail] = useState("");
   const [isSent, setIsSent] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please provide a valid registered email address');
+      setError("Please provide a valid registered email address");
       return;
     }
-    setError('');
-    setIsSent(true);
+    setError("");
+    setIsSending(true);
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/auth/magic-link`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        },
+      );
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
+      setIsSent(true);
+    } catch (err) {
+      setError("Could not send the link. Please try again.");
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -32,7 +53,6 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
       aria-labelledby="signin-modal-title"
     >
       <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        
         {/* Header */}
         <div className="bg-[#102a43] text-white px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -56,11 +76,15 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
           {!isSent ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <p className="text-sm text-slate-600 leading-relaxed">
-                Enter your enrolled student email to access project assignment briefs, mentor feedback logs, and portfolio repositories.
+                Enter your enrolled student email to access project assignment
+                briefs, mentor feedback logs, and portfolio repositories.
               </p>
 
               <div>
-                <label htmlFor="signin-email" className="block text-xs font-semibold text-slate-700 mb-1">
+                <label
+                  htmlFor="signin-email"
+                  className="block text-xs font-semibold text-slate-700 mb-1"
+                >
                   Enrolled Email Address
                 </label>
                 <div className="relative">
@@ -84,24 +108,33 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
 
               <button
                 type="submit"
+                disabled= {isSending}
                 className="w-full py-2.5 px-4 font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-lg transition-colors text-sm shadow-xs cursor-pointer"
               >
-                Send Secure Magic Login Link
+                {isSending ? 'Sending.....' : 'Send Secure Magic Login Link'}
               </button>
 
-              <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-500">
-                <span className="font-semibold text-slate-700">Demonstration Note: </span>
-                This portal connects to the SSO / Auth0 / Supabase / Firebase identity provider once user accounts are activated for your cohort.
-              </div>
+              {/* <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-500">
+                <span className="font-semibold text-slate-700">
+                  Demonstration Note:{" "}
+                </span>
+                This portal connects to the SSO / Auth0 / Supabase / Firebase
+                identity provider once user accounts are activated for your
+                cohort.
+              </div> */}
             </form>
           ) : (
             <div className="text-center py-4 space-y-3">
               <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-[#102a43]">Login Link Dispatched</h3>
+              <h3 className="text-lg font-bold text-[#102a43]">
+                Login Link Dispatched
+              </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                If an active apprenticeship or mentorship record matches <strong>{email}</strong>, a secure one-time session link has been sent.
+                If an active apprenticeship or mentorship record matches{" "}
+                <strong>{email}</strong>, a secure one-time session link has
+                been sent.
               </p>
               <button
                 type="button"
@@ -113,7 +146,6 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
             </div>
           )}
         </div>
-
       </div>
     </div>
   );
