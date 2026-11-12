@@ -121,6 +121,11 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
         throw new Error(data.error || `Request failed (${res.status})`);
       }
       const data = await res.json();
+      if (data.approveUrl){
+        window.location.href = data.approveUrl;
+        setIsSubmitting(false);
+        return;
+      }
       setAlreadyApplied(Boolean(data.existing));
       
       setIsSubmitted(true);
