@@ -3,6 +3,19 @@ import { cors } from "hono/cors";
 import { sendEmail } from "./email";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { randomToken, createSession, readSession } from "./auth";
+import {
+  paypalToken,
+  createProductAndPlans,
+  createSubscription,
+} from "./paypal";
+
+function planIdFor(env: Env, programme: string) {
+  return {
+    apprenticeship: env.PAYPAL_PLAN_APPRENTICESHIP,
+    "mentorship-6mo": env.PAYPAL_PLAN_MENTORSHIP_6MO,
+    "mentorship-3mo": env.PAYPAL_PLAN_MENTORSHIP_3MO,
+  }[programme];
+}
 
 const PROGRAMME_LABELS: Record<string, string> = {
   apprenticeship: "Apprenticeship Programme (12 months)",
@@ -46,6 +59,32 @@ app.post("/api/enrolment", async (c) => {
 
   const db = c.env.career_launch_db;
 
+  const startPayment = async (enrolmentId: string) => {
+    const planId = planIdFor(c.env, b.programme);
+    if (!planId) {
+      throw new Error(`no plan for ${b.programme}`);
+    }
+    const token = await paypalToken(
+      c.env.PAYPAL_CLIENT_ID,
+      c.env.PAYPAL_CLIENT_SECRET,
+    );
+    const { subscriptionId, approveUrl } = await createSubscription(token, {
+      planId,
+      enrolmentId,
+      email: b.email,
+      fullName: b.fullName,
+      returnUrl: `${APP_URL}/api/payments/paypal/return?enrolment=${enrolmentId}`,
+      cancelUrl: `${APP_URL}/api/payments/paypal/cancel?enrolment=${enrolmentId}`,
+    });
+    await db
+      .prepare(
+        "UPDATE enrolments SET provider = 'paypal', provider_subscription_id = ? WHERE id = ?",
+      )
+      .bind(subscriptionId, enrolmentId)
+      .run();
+    return approveUrl;
+  };
+
   let user = await db
     .prepare("SELECT id FROM users WHERE email = ?")
     .bind(b.email)
@@ -75,7 +114,11 @@ app.post("/api/enrolment", async (c) => {
     .first<{ id: string }>();
 
   if (existing) {
-    return c.json({ enrolmentId: existing.id, existing: true }, 200);
+    const approveUrl = await startPayment(existing.id);
+    return c.json(
+      { enrolmentId: existing.id, existing: true, approveUrl },
+      200,
+    );
   }
 
   const enrolmentId = crypto.randomUUID();
@@ -99,7 +142,9 @@ app.post("/api/enrolment", async (c) => {
   } catch (err) {
     console.error("Confirmation email failed", err);
   }
-  return c.json({ enrolmentId }, 201);
+
+  const approveUrl = await startPayment(enrolmentId);
+  return c.json({ enrolmentId, approveUrl }, 201);
 });
 
 app.post("/api/auth/magic-link", async (c) => {
@@ -146,15 +191,24 @@ app.get("/api/auth/verify", async (c) => {
   if (!token) return c.text("Missing token", 400);
 
   const db = c.env.career_launch_db;
-  const row = await db.prepare(
-    "SELECT user_id, expires_at, used FROM login_tokens WHERE token = ?"
-  ).bind(token).first<{user_id: string; expires_at: string; used: number}>();
+  const row = await db
+    .prepare(
+      "SELECT user_id, expires_at, used FROM login_tokens WHERE token = ?",
+    )
+    .bind(token)
+    .first<{ user_id: string; expires_at: string; used: number }>();
 
-  if (!row || row.used || new Date(row.expires_at) < new Date()){
-    return c.text("This link is invalid or has expired. Please request a new one.", 400);
+  if (!row || row.used || new Date(row.expires_at) < new Date()) {
+    return c.text(
+      "This link is invalid or has expired. Please request a new one.",
+      400,
+    );
   }
 
-  await db.prepare("UPDATE login_tokens SET used = 1 WHERE token = ?").bind(token).run();
+  await db
+    .prepare("UPDATE login_tokens SET used = 1 WHERE token = ?")
+    .bind(token)
+    .run();
 
   const session = await createSession(c.env.SESSION_SECRET, row.user_id);
   setCookie(c, "session", session, {
@@ -171,34 +225,56 @@ app.get("/api/auth/verify", async (c) => {
 
 // use cookie get data
 app.get("/api/me", async (c) => {
-  const userId = await readSession(c.env.SESSION_SECRET, getCookie(c, "session"));
-  if (!userId) return c.json({error: "not signed in"}, 401);
+  const userId = await readSession(
+    c.env.SESSION_SECRET,
+    getCookie(c, "session"),
+  );
+  if (!userId) return c.json({ error: "not signed in" }, 401);
 
   const db = c.env.career_launch_db;
-  const user = await db.prepare(
-    "SELECT id, email, full_name, institution, graduation_year FROM users WHERE id = ?"
-  ).bind(userId).first();
+  const user = await db
+    .prepare(
+      "SELECT id, email, full_name, institution, graduation_year FROM users WHERE id = ?",
+    )
+    .bind(userId)
+    .first();
 
-  const enrolments = await db.prepare(
-    "SELECT id, programme, track, status, created_at FROM enrolments WHERE user_id = ? ORDER BY created_at DESC"
-  ).bind(userId).all();
+  const enrolments = await db
+    .prepare(
+      "SELECT id, programme, track, status, created_at FROM enrolments WHERE user_id = ? ORDER BY created_at DESC",
+    )
+    .bind(userId)
+    .all();
 
-  return c.json({user, enrolments: enrolments.results});
-})
+  return c.json({ user, enrolments: enrolments.results });
+});
+
+app.get("/api/payments/paypal/return", (c) =>
+  c.html(`<h1>Thank you</h1><p>Your payment is being confirmed. You will receive an email shortly.</p>`)
+);
+
+app.get("/api/payments/paypal/cancel", (c) => 
+  c.html(`<h1>Payment cancelled</h1><p>Your application is saved. You can sign in later to complete payment.</p>`)
+);
 
 //temp page
 app.get("/portal", async (c) => {
-  const userId = await readSession(c.env.SESSION_SECRET, getCookie(c, 'session'));
-  if (!userId){
+  const userId = await readSession(
+    c.env.SESSION_SECRET,
+    getCookie(c, "session"),
+  );
+  if (!userId) {
     return c.text("Not signed in", 401);
   }
-  return c.html(`<h1>Signed in</h1><p>User panel coming soon.</p><p><a href="/api/me">See my data</a></p>`);
-})
+  return c.html(
+    `<h1>Signed in</h1><p>User panel coming soon.</p><p><a href="/api/me">See my data</a></p>`,
+  );
+});
 
 //temp logout
 app.post("/api/auth/logout", (c) => {
-  deleteCookie(c, "session", {path: "/"});
-  return c.json({ok: true});
-})
+  deleteCookie(c, "session", { path: "/" });
+  return c.json({ ok: true });
+});
 
 export default app;
