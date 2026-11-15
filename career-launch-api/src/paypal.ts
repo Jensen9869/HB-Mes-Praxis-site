@@ -139,3 +139,20 @@ export async function createSubscription(
     approveUrl: approve?.href as string,
   };
 }
+
+export async function verifyWebhook(token: string, webhookId: string, headers: Headers, rawBody: string) {
+    const result = await paypalFetch(token, "/v1/notifications/verify-webhook-signature",{
+        method: "POST",
+        body: JSON.stringify({
+            auth_algo: headers.get("paypal-auth-algo"),
+            cert_url: headers.get("paypal-cert-url"),
+            transmission_id: headers.get("paypal-transmission-id"),
+            transmission_sig: headers.get("paypal-transmission-sig"),
+            transmission_time: headers.get("paypal-transmission-time"),
+            webhook_id: webhookId,
+            webhook_event: JSON.parse(rawBody),
+        }),
+    });
+    return result.verification_status === "SUCCESS";
+}
+

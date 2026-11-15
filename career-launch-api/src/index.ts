@@ -3,11 +3,7 @@ import { cors } from "hono/cors";
 import { sendEmail } from "./email";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { randomToken, createSession, readSession } from "./auth";
-import {
-  paypalToken,
-  createProductAndPlans,
-  createSubscription,
-} from "./paypal";
+import { paypalToken, createSubscription, verifyWebhook } from "./paypal";
 
 function planIdFor(env: Env, programme: string) {
   return {
@@ -58,35 +54,27 @@ app.post("/api/enrolment", async (c) => {
   }
 
   const db = c.env.career_launch_db;
+  const payLink = (id: string) =>
+    `${APP_URL}/api/payments/paypal/start?enrolment=${id}`;
 
-  const startPayment = async (enrolmentId: string) => {
-    const planId = planIdFor(c.env, b.programme);
-    if (!planId) {
-      throw new Error(`no plan for ${b.programme}`);
-    }
-    const token = await paypalToken(
-      c.env.PAYPAL_CLIENT_ID,
-      c.env.PAYPAL_CLIENT_SECRET,
-    );
-    const { subscriptionId, approveUrl } = await createSubscription(token, {
-      planId,
-      enrolmentId,
-      email: b.email,
-      fullName: b.fullName,
-      returnUrl: `${APP_URL}/api/payments/paypal/return?enrolment=${enrolmentId}`,
-      cancelUrl: `${APP_URL}/api/payments/paypal/cancel?enrolment=${enrolmentId}`,
-    });
-    await db
-      .prepare(
-        "UPDATE enrolments SET provider = 'paypal', provider_subscription_id = ? WHERE id = ?",
-      )
-      .bind(subscriptionId, enrolmentId)
-      .run();
-    return approveUrl;
+  const sendApplicationEmail = async (enrolmentId: string, resend = false) => {
+    await sendEmail(c.env.POSTAL_API_KEY, {
+      to: b.email,
+      subject: resend
+        ? "Your payment link — Career Launch Platform"
+        : "We received your application — Career Launch Platform",
+      html: `
+        <p>Hi ${b.fullName},</p>
+        <p>${resend ? "Here is your payment link again for" : "Thanks for applying to"} the <strong>${PROGRAMME_LABELS[b.programme] ?? b.programme}</strong>.</p>
+        <p>To secure your place, complete your first instalment here:</p>
+        <p><a href="${payLink(enrolmentId)}">Pay now with PayPal</a></p>
+        <p>— Career Launch Platform</p>
+      `,
+    }).catch((err) => console.error("application email failed", err));
   };
 
   let user = await db
-    .prepare("SELECT id FROM users WHERE email = ?")
+    .prepare("SELECT id FROM users WHERE email= ?")
     .bind(b.email)
     .first<{ id: string }>();
 
@@ -108,16 +96,30 @@ app.post("/api/enrolment", async (c) => {
 
   const existing = await db
     .prepare(
-      "SELECT id FROM enrolments WHERE user_id = ? AND programme = ? AND status = 'awaiting_payment' ",
+      "SELECT id, status FROM enrolments WHERE user_id = ? AND programme = ? AND status IN ('awaiting_payment', 'active', 'approved', 'payment_failed') ORDER BY created_at DESC LIMIT 1",
     )
     .bind(user.id, b.programme)
-    .first<{ id: string }>();
+    .first<{ id: string; status: string }>();
 
   if (existing) {
-    const approveUrl = await startPayment(existing.id);
+    if (existing.status === "awaiting_payment") {
+      await sendApplicationEmail(existing.id, true);
+      return c.json(
+        {
+          enrolmentId: existing.id,
+          existing: true,
+          payUrl: payLink(existing.id),
+        },
+        200,
+      );
+    }
+
     return c.json(
-      { enrolmentId: existing.id, existing: true, approveUrl },
-      200,
+      {
+        error:
+          "You are already enrolled in this programme. Sign in to view your enrolment.",
+      },
+      409,
     );
   }
 
@@ -129,22 +131,8 @@ app.post("/api/enrolment", async (c) => {
     .bind(enrolmentId, user.id, b.programme, b.track ?? null)
     .run();
 
-  try {
-    await sendEmail(c.env.POSTAL_API_KEY, {
-      to: b.email,
-      subject: "We received your application — Career Launch Platform",
-      html: `
-        <p>Hi ${b.fullName},</p>
-        <p>Thanks for applying to the <strong>${PROGRAMME_LABELS[b.programme] ?? b.programme}</strong> programme. We have your application and will be in touch by email.</p>
-        <p>— Career Launch Platform</p>
-      `,
-    });
-  } catch (err) {
-    console.error("Confirmation email failed", err);
-  }
-
-  const approveUrl = await startPayment(enrolmentId);
-  return c.json({ enrolmentId, approveUrl }, 201);
+  await sendApplicationEmail(enrolmentId);
+  return c.json({ enrolmentId, payUrl: payLink(enrolmentId) }, 201);
 });
 
 app.post("/api/auth/magic-link", async (c) => {
@@ -249,12 +237,71 @@ app.get("/api/me", async (c) => {
   return c.json({ user, enrolments: enrolments.results });
 });
 
+app.get("/api/payments/paypal/start", async (c) => {
+  const enrolmentId = c.req.query("enrolment");
+  if (!enrolmentId) {
+    return c.text("Missing enrolment", 400);
+  }
+
+  const db = c.env.career_launch_db;
+  const row = await db
+    .prepare(
+      "SELECT e.id, e.programme, e.status, u.email, u.full_name FROM enrolments e JOIN users u ON u.id = e.user_id WHERE e.id = ?",
+    )
+    .bind(enrolmentId)
+    .first<{
+      id: string;
+      programme: string;
+      status: string;
+      email: string;
+      full_name: string;
+    }>();
+
+  if (!row) return c.text("Application not found", 404);
+
+  if (row.status !== "awaiting_payment") {
+    return c.html(
+      `<h1>Nothing to pay</h1><p>This application is already <strong>${row.status}</strong>.</p>`,
+    );
+  }
+
+  const planId = planIdFor(c.env, row.programme);
+
+  if (!planId) return c.text("No plan for this programme", 500);
+
+  const token = await paypalToken(
+    c.env.PAYPAL_CLIENT_ID,
+    c.env.PAYPAL_CLIENT_SECRET,
+  );
+  const { subscriptionId, approveUrl } = await createSubscription(token, {
+    planId,
+    enrolmentId: row.id,
+    fullName: row.full_name,
+    email: row.email,
+    returnUrl: `${APP_URL}/api/payments/paypal/return?enrolment=${row.id}`,
+    cancelUrl: `${APP_URL}/api/payments/paypal/cancel?enrolment=${row.id}`,
+  });
+
+  await db
+    .prepare(
+      "UPDATE enrolments SET provider = 'paypal', provider_subscription_id= ? WHERE id = ?",
+    )
+    .bind(subscriptionId, row.id)
+    .run();
+
+  return c.redirect(approveUrl);
+});
+
 app.get("/api/payments/paypal/return", (c) =>
-  c.html(`<h1>Thank you</h1><p>Your payment is being confirmed. You will receive an email shortly.</p>`)
+  c.html(
+    `<h1>Thank you</h1><p>Your payment is being confirmed. You will receive an email shortly.</p>`,
+  ),
 );
 
-app.get("/api/payments/paypal/cancel", (c) => 
-  c.html(`<h1>Payment cancelled</h1><p>Your application is saved. You can sign in later to complete payment.</p>`)
+app.get("/api/payments/paypal/cancel", (c) =>
+  c.html(
+    `<h1>Payment cancelled</h1><p>Your application is saved. You can sign in later to complete payment.</p>`,
+  ),
 );
 
 //temp page
@@ -275,6 +322,132 @@ app.get("/portal", async (c) => {
 app.post("/api/auth/logout", (c) => {
   deleteCookie(c, "session", { path: "/" });
   return c.json({ ok: true });
+});
+
+app.post("/api/webhooks/paypal", async (c) => {
+  const rawBody = await c.req.text();
+  const token = await paypalToken(
+    c.env.PAYPAL_CLIENT_ID,
+    c.env.PAYPAL_CLIENT_SECRET,
+  );
+
+  const ok = await verifyWebhook(
+    token,
+    c.env.PAYPAL_WEBHOOK_ID,
+    c.req.raw.headers,
+    rawBody,
+  );
+  if (!ok) {
+    console.error("paypal webhook: bad signature");
+    return c.text("bad signature", 400);
+  }
+
+  const event = JSON.parse(rawBody) as {
+    id: string;
+    event_type: string;
+    resource: Record<string, any>;
+  };
+
+  const db = c.env.career_launch_db;
+  const r = event.resource;
+
+  console.log("paypal_webhook", event.event_type, r.id);
+
+  switch (event.event_type) {
+    case "BILLING.SUBSCRIPTION.ACTIVATED": {
+      const enrolmentId = r.custom_id as string;
+      await db
+        .prepare(
+          "UPDATE enrolments SET status = 'active', provider_subscription_id = ? WHERE id = ? AND status = 'awaiting_payment' ",
+        )
+        .bind(r.id, enrolmentId)
+        .run();
+
+      const row = await db
+        .prepare(
+          "SELECT u.email, u.full_name, e.programme FROM enrolments e JOIN users u ON u.id = e.user_id WHERE e.id = ?",
+        )
+        .bind(enrolmentId)
+        .first<{ email: string; full_name: string; programme: string }>();
+
+      if (row) {
+        await sendEmail(c.env.POSTAL_API_KEY, {
+          to: row.email,
+          subject: "Payment confirmed — welcome to Career Launch",
+          html: `<p>Hi ${row.full_name},</p>
+                 <p>Your payment is confirmed and your place in the <strong>${PROGRAMME_LABELS[row.programme] ?? row.programme}</strong> is active. We will be in touch with next steps.</p>`,
+        }).catch((e) => console.error("activation email failed", e));
+      }
+      break;
+    }
+
+    case "PAYMENT.SALE.COMPLETED": {
+      // 每月扣款成功。用 sale id 当主键，PayPal 重发同一事件也不会记两次
+      const subId = r.billing_agreement_id as string | undefined;
+      if (!subId) break;
+      const enr = await db
+        .prepare("SELECT id FROM enrolments WHERE provider_subscription_id = ?")
+        .bind(subId)
+        .first<{ id: string }>();
+
+      if (!enr) break;
+
+      await db
+        .prepare(
+          "INSERT OR IGNORE INTO payments (id, enrolment_id, provider_invoice_id, amount, currency, status, paid_at) VALUES (?,?,?,?,?,?,?)",
+        )
+        .bind(
+          r.id,
+          enr.id,
+          r.id,
+          Math.round(parseFloat(r.amount.total) * 100),
+          r.amount.currency,
+          "paid",
+          r.create_time,
+        )
+        .run();
+
+      break;
+    }
+
+    case "BILLING.SUBSCRIPTION.PAYMENT.FAILED": {
+      await db
+        .prepare(
+          "UPDATE enrolments SET status = 'payment_failed' WHERE provider_subscription_id = ? AND status= 'active'",
+        )
+        .bind(r.id)
+        .run();
+
+      const row = await db
+        .prepare(
+          "SELECT u.email, u.full_name FROM enrolments e JOIN users u ON u.id = e.user_id WHERE e.provider_subscription_id = ?",
+        )
+        .bind(r.id)
+        .first<{ email: string; full_name: string }>();
+
+      if (row) {
+        await sendEmail(c.env.POSTAL_API_KEY, {
+          to: row.email,
+          subject: "Payment failed — action needed",
+          html: `<p>Hi ${row.full_name},</p><p>Your latest instalment could not be processed. Please update your payment method in your PayPal account. PayPal will retry automatically.</p>`,
+        }).catch((e) => console.error("failure email failed", e));
+      }
+      break;
+    }
+
+    case "BILLING.SUBSCRIPTION.CANCELLED":
+    case "BILLING.SUBSCRIPTION.SUSPENDED": {
+      await db
+        .prepare(
+          "UPDATE enrolments SET status = 'cancelled' WHERE provider_subscription_id = ? AND status IN ('active', 'payment_failed')",
+        )
+        .bind(r.id)
+        .run();
+      break;
+    }
+  }
+
+  return c.json({ received: true });
 });
 
 export default app;
