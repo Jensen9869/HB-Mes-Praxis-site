@@ -5,6 +5,9 @@ import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { randomToken, createSession, readSession } from "./auth";
 import { paypalToken, createSubscription, verifyWebhook } from "./paypal";
 
+import { portal } from "./portal";
+import { admin } from "./admin";
+
 function planIdFor(env: Env, programme: string) {
   return {
     apprenticeship: env.PAYPAL_PLAN_APPRENTICESHIP,
@@ -23,6 +26,9 @@ const app = new Hono<{ Bindings: Env }>();
 
 // change when go live
 const APP_URL = "https://career-launch-api.white-glade-ab2c.workers.dev";
+
+app.route("/portal", portal);
+app.route("/admin", admin);
 
 app.use(
   "/api/*",
