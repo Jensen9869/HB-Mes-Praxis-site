@@ -34,6 +34,18 @@ app.use(
   }),
 );
 
+const rateLimited = async (c:any, next: any)=>{
+  const ip = c.req.header("cf-connecting-ip") ?? "unknown";
+  const { success } = await c.env.FORM_LIMITER.limit({ key: ip });
+  if (!success) {
+    return c.json({ error: "Too many requests. Please wait a minute and try again." }, 429);
+  }
+  await next();
+};
+
+app.use("/api/enrolment", rateLimited);
+app.use("/api/auth/magic-link", rateLimited);
+
 app.get("/api/health", (c) => c.json({ ok: true }));
 
 app.post("/api/enrolment", async (c) => {
