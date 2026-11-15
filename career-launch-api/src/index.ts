@@ -26,9 +26,7 @@ const app = new Hono<{ Bindings: Env }>();
 
 // change when go live
 const APP_URL = "https://career-launch-api.white-glade-ab2c.workers.dev";
-
-app.route("/portal", portal);
-app.route("/admin", admin);
+const SITE_URL = "https://career-launch-platform.white-glade-ab2c.workers.dev";
 
 app.use(
   "/api/*",
@@ -40,11 +38,14 @@ app.use(
   }),
 );
 
-const rateLimited = async (c:any, next: any)=>{
+const rateLimited = async (c: any, next: any) => {
   const ip = c.req.header("cf-connecting-ip") ?? "unknown";
   const { success } = await c.env.FORM_LIMITER.limit({ key: ip });
   if (!success) {
-    return c.json({ error: "Too many requests. Please wait a minute and try again." }, 429);
+    return c.json(
+      { error: "Too many requests. Please wait a minute and try again." },
+      429,
+    );
   }
   await next();
 };
@@ -53,6 +54,12 @@ app.use("/api/enrolment", rateLimited);
 app.use("/api/auth/magic-link", rateLimited);
 
 app.get("/api/health", (c) => c.json({ ok: true }));
+app.get("/api/payments/paypal/return", (c) =>
+  c.redirect(`${SITE_URL}/?payment=success`),
+);
+app.get("/api/payments/paypal/cancel", (c) =>
+  c.redirect(`${SITE_URL}/?payment=cancelled`),
+);
 
 app.post("/api/enrolment", async (c) => {
   const b = await c.req.json<{
@@ -191,6 +198,9 @@ app.post("/api/auth/magic-link", async (c) => {
   return c.json({ ok: true });
 });
 
+app.route("/portal", portal);
+app.route("/admin", admin);
+
 // user click link
 app.get("/api/auth/verify", async (c) => {
   const token = c.req.query("token");
@@ -308,38 +318,6 @@ app.get("/api/payments/paypal/start", async (c) => {
     .run();
 
   return c.redirect(approveUrl);
-});
-
-app.get("/api/payments/paypal/return", (c) =>
-  c.html(
-    `<h1>Thank you</h1><p>Your payment is being confirmed. You will receive an email shortly.</p>`,
-  ),
-);
-
-app.get("/api/payments/paypal/cancel", (c) =>
-  c.html(
-    `<h1>Payment cancelled</h1><p>Your application is saved. You can sign in later to complete payment.</p>`,
-  ),
-);
-
-//temp page
-app.get("/portal", async (c) => {
-  const userId = await readSession(
-    c.env.SESSION_SECRET,
-    getCookie(c, "session"),
-  );
-  if (!userId) {
-    return c.text("Not signed in", 401);
-  }
-  return c.html(
-    `<h1>Signed in</h1><p>User panel coming soon.</p><p><a href="/api/me">See my data</a></p>`,
-  );
-});
-
-//temp logout
-app.post("/api/auth/logout", (c) => {
-  deleteCookie(c, "session", { path: "/" });
-  return c.json({ ok: true });
 });
 
 app.post("/api/webhooks/paypal", async (c) => {
