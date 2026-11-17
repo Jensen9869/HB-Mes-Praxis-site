@@ -20,7 +20,8 @@ import { FooterSection } from "./components/FooterSection";
 import { EnrolmentModal, SelectedPlanState } from "./components/EnrolmentModal";
 import { SignInModal } from "./components/SignInModal";
 import { PolicyModal } from "./components/PolicyModal";
-import { BusinessDecisionsModal } from "./components/BusinessDecisionsModal";
+// import { BusinessDecisionsModal } from "./components/BusinessDecisionsModal";
+import { ContactModal } from "./components/ContactModal";
 import { CookieBanner } from "./components/CookieBanner";
 import { PROGRAMMES_CONFIG } from "./config/platformConfig";
 import { PaymentResultModal } from "./components/PaymentResultModal";
@@ -32,8 +33,7 @@ export default function App() {
     null,
   );
   const [signInModalOpen, setSignInModalOpen] = useState(false);
-  const [businessDecisionsModalOpen, setBusinessDecisionsModalOpen] =
-    useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
   const [policyModal, setPolicyModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -164,7 +164,7 @@ export default function App() {
       <FooterSection
         onNavigateSection={handleNavigateSection}
         onOpenPolicy={handleOpenPolicy}
-        onOpenBusinessDecisions={() => setBusinessDecisionsModalOpen(true)}
+        onOpenContact={() => setContactModalOpen(true)}
       />
 
       {/* Interactive Enrolment & Review Modal */}
@@ -189,12 +189,12 @@ export default function App() {
       />
 
       {/* Business Decisions Governance Checklist Modal (Deliverable Item 7) */}
-      <BusinessDecisionsModal
-        isOpen={businessDecisionsModalOpen}
-        onClose={() => setBusinessDecisionsModalOpen(false)}
-      />
+      <ContactModal isOpen={contactModalOpen} onClose={() => setContactModalOpen(false)} />
 
-      <PaymentResultModal result={paymentResult} onClose={() => setPaymentResult(null)} />
+      <PaymentResultModal
+        result={paymentResult}
+        onClose={() => setPaymentResult(null)}
+      />
 
       {/* Consent-Aware Analytics Placeholder */}
       <CookieBanner />

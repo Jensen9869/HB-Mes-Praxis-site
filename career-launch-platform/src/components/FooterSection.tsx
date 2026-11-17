@@ -1,17 +1,17 @@
 import React from 'react';
-import { Compass, ExternalLink, ShieldCheck, FileText } from 'lucide-react';
+import { Compass } from 'lucide-react';
 import { BRAND_CONFIG } from '../config/platformConfig';
 
 interface FooterSectionProps {
   onNavigateSection: (sectionId: string) => void;
   onOpenPolicy: (title: string, content: string) => void;
-  onOpenBusinessDecisions: () => void;
+  onOpenContact: () => void;
 }
 
 export const FooterSection: React.FC<FooterSectionProps> = ({
   onNavigateSection,
   onOpenPolicy,
-  onOpenBusinessDecisions
+  onOpenContact,
 }) => {
   const currentYear = new Date().getFullYear();
 
@@ -36,7 +36,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
             </p>
 
             {/* Configurable Social Media Placeholders */}
-            <div className="pt-2">
+            {/* <div className="pt-2">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2.5">
                 Community & Social (Configurable)
               </p>
@@ -49,7 +49,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
                 <span>·</span>
                 <span className="hover:text-white transition-colors cursor-pointer" title="Configurable social handle">Discord</span>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Col 3: Pathways & Curriculum */}
@@ -117,24 +117,10 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
               </li>
               <li>
                 <button
-                  onClick={() =>
-                    onOpenPolicy(
-                      "Contact Information",
-                      "Contact channels, support office hours, and student advisor routing will be published upon operational launch. General questions can be directed via the online enrolment inquiry form."
-                    )
-                  }
+                  onClick={onOpenContact}
                   className="hover:text-white transition-colors text-left"
                 >
                   Contact
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={onOpenBusinessDecisions}
-                  className="text-xs text-amber-400 hover:text-amber-300 transition-colors text-left flex items-center gap-1 font-semibold"
-                >
-                  <span>Launch Checklist & Terms</span>
-                  <ExternalLink className="w-3 h-3" />
                 </button>
               </li>
             </ul>
