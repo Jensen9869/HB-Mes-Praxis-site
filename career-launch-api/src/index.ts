@@ -1,6 +1,14 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { sendEmail } from "./email";
+import { LOGO_PNG_BASE64 } from "./email-logo";
+import {
+  applicationEmail,
+  magicLinkEmail,
+  welcomeEmail,
+  paymentFailedEmail,
+  paymentReceiptEmail,
+} from "./email-templates";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { randomToken, createSession, readSession } from "./auth";
 import { paypalToken, createSubscription, verifyWebhook } from "./paypal";
@@ -22,11 +30,28 @@ const PROGRAMME_LABELS: Record<string, string> = {
   "mentorship-3mo": "Professional Mentorship (3 months)",
 };
 
+const findEnrollee = (db: D1Database, enrolmentId: string) =>
+  db
+    .prepare(
+      "SELECT u.email, u.full_name, e.programme FROM enrolments e JOIN users u ON u.id = e.user_id WHERE e.id = ?",
+    )
+    .bind(enrolmentId)
+    .first<{ email: string; full_name: string; programme: string }>();
+
 const app = new Hono<{ Bindings: Env }>();
 
 // change when go live
 const APP_URL = "https://career-launch-api.white-glade-ab2c.workers.dev";
 const SITE_URL = "https://career-launch-platform.white-glade-ab2c.workers.dev";
+
+const logoPng = Uint8Array.from(atob(LOGO_PNG_BASE64), (ch) => ch.charCodeAt(0));
+app.get(
+  "/email/logo.png",
+  () =>
+    new Response(logoPng, {
+      headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" },
+    }),
+);
 
 app.use(
   "/api/*",
@@ -88,13 +113,12 @@ app.post("/api/enrolment", async (c) => {
       subject: resend
         ? "Your payment link — Career Launch Platform"
         : "We received your application — Career Launch Platform",
-      html: `
-        <p>Hi ${b.fullName},</p>
-        <p>${resend ? "Here is your payment link again for" : "Thanks for applying to"} the <strong>${PROGRAMME_LABELS[b.programme] ?? b.programme}</strong>.</p>
-        <p>To secure your place, complete your first instalment here:</p>
-        <p><a href="${payLink(enrolmentId)}">Pay now with PayPal</a></p>
-        <p>— Career Launch Platform</p>
-      `,
+      html: applicationEmail({
+        fullName: b.fullName,
+        programme: PROGRAMME_LABELS[b.programme] ?? b.programme,
+        payLink: payLink(enrolmentId),
+        resend,
+      }),
     }).catch((err) => console.error("application email failed", err));
   };
 
@@ -187,9 +211,7 @@ app.post("/api/auth/magic-link", async (c) => {
       await sendEmail(c.env.POSTAL_API_KEY, {
         to: email,
         subject: "Your sign-in link — Career Launch Platform",
-        html: `<p>Hi ${user.full_name},</p>
-               <p><a href="${link}">Click here to sign in</a>. This link works once and expires in 15 minutes.</p>
-               <p>If you did not request this, you can ignore this email.</p>`,
+        html: magicLinkEmail({ fullName: user.full_name, link }),
       });
     } catch (err) {
       console.error("magic link email failed", err);
@@ -366,19 +388,16 @@ app.post("/api/webhooks/paypal", async (c) => {
         .bind(r.id, enrolmentId)
         .run();
 
-      const row = await db
-        .prepare(
-          "SELECT u.email, u.full_name, e.programme FROM enrolments e JOIN users u ON u.id = e.user_id WHERE e.id = ?",
-        )
-        .bind(enrolmentId)
-        .first<{ email: string; full_name: string; programme: string }>();
+      const row = await findEnrollee(db, enrolmentId);
 
       if (row) {
         await sendEmail(c.env.POSTAL_API_KEY, {
           to: row.email,
-          subject: "Payment confirmed — welcome to Career Launch",
-          html: `<p>Hi ${row.full_name},</p>
-                 <p>Your payment is confirmed and your place in the <strong>${PROGRAMME_LABELS[row.programme] ?? row.programme}</strong> is active. We will be in touch with next steps.</p>`,
+          subject: "Welcome to Career Launch — your place is active",
+          html: welcomeEmail({
+            fullName: row.full_name,
+            programme: PROGRAMME_LABELS[row.programme] ?? row.programme,
+          }),
         }).catch((e) => console.error("activation email failed", e));
       }
       break;
@@ -395,21 +414,35 @@ app.post("/api/webhooks/paypal", async (c) => {
 
       if (!enr) break;
 
-      await db
+      const amount = Math.round(parseFloat(r.amount.total) * 100);
+      const inserted = await db
         .prepare(
           "INSERT OR IGNORE INTO payments (id, enrolment_id, provider_invoice_id, amount, currency, status, paid_at) VALUES (?,?,?,?,?,?,?)",
         )
-        .bind(
-          r.id,
-          enr.id,
-          r.id,
-          Math.round(parseFloat(r.amount.total) * 100),
-          r.amount.currency,
-          "paid",
-          r.create_time,
-        )
+        .bind(r.id, enr.id, r.id, amount, r.amount.currency, "paid", r.create_time)
         .run();
+      if (!inserted.meta.changes) break; // PayPal re-delivered this sale: already receipted
 
+      const row = await findEnrollee(db, enr.id);
+      if (row) {
+        await sendEmail(c.env.POSTAL_API_KEY, {
+          to: row.email,
+          subject: "Payment received — Career Launch Platform",
+          html: paymentReceiptEmail({
+            fullName: row.full_name,
+            programme: PROGRAMME_LABELS[row.programme] ?? row.programme,
+            amount: new Intl.NumberFormat("en", {
+              style: "currency",
+              currency: r.amount.currency,
+            }).format(amount / 100),
+            paidOn: new Date(r.create_time).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            }),
+          }),
+        }).catch((e) => console.error("receipt email failed", e));
+      }
       break;
     }
 
@@ -432,7 +465,7 @@ app.post("/api/webhooks/paypal", async (c) => {
         await sendEmail(c.env.POSTAL_API_KEY, {
           to: row.email,
           subject: "Payment failed — action needed",
-          html: `<p>Hi ${row.full_name},</p><p>Your latest instalment could not be processed. Please update your payment method in your PayPal account. PayPal will retry automatically.</p>`,
+          html: paymentFailedEmail({ fullName: row.full_name }),
         }).catch((e) => console.error("failure email failed", e));
       }
       break;
