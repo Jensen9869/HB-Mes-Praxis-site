@@ -123,9 +123,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             {/* Quiet caption underneath respecting anti-slop rules */}
-            <p className="text-xs text-center text-slate-500 mt-2.5">
+            {/* <p className="text-xs text-center text-slate-500 mt-2.5">
               Features represented above correspond to planned programme curriculum components.
-            </p>
+            </p> */}
           </div>
 
         </div>

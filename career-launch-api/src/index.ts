@@ -298,17 +298,22 @@ app.get("/api/payments/paypal/start", async (c) => {
   if (!planId) return c.text("No plan for this programme", 500);
 
   const token = await paypalToken(
+    c.env.PAYPAL_BASE,
     c.env.PAYPAL_CLIENT_ID,
     c.env.PAYPAL_CLIENT_SECRET,
   );
-  const { subscriptionId, approveUrl } = await createSubscription(token, {
-    planId,
-    enrolmentId: row.id,
-    fullName: row.full_name,
-    email: row.email,
-    returnUrl: `${APP_URL}/api/payments/paypal/return?enrolment=${row.id}`,
-    cancelUrl: `${APP_URL}/api/payments/paypal/cancel?enrolment=${row.id}`,
-  });
+  const { subscriptionId, approveUrl } = await createSubscription(
+    c.env.PAYPAL_BASE,
+    token,
+    {
+      planId,
+      enrolmentId: row.id,
+      fullName: row.full_name,
+      email: row.email,
+      returnUrl: `${APP_URL}/api/payments/paypal/return?enrolment=${row.id}`,
+      cancelUrl: `${APP_URL}/api/payments/paypal/cancel?enrolment=${row.id}`,
+    },
+  );
 
   await db
     .prepare(
@@ -323,11 +328,13 @@ app.get("/api/payments/paypal/start", async (c) => {
 app.post("/api/webhooks/paypal", async (c) => {
   const rawBody = await c.req.text();
   const token = await paypalToken(
+    c.env.PAYPAL_BASE,
     c.env.PAYPAL_CLIENT_ID,
     c.env.PAYPAL_CLIENT_SECRET,
   );
 
   const ok = await verifyWebhook(
+    c.env.PAYPAL_BASE,
     token,
     c.env.PAYPAL_WEBHOOK_ID,
     c.req.raw.headers,

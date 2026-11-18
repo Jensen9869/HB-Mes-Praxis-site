@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  X,
-  Check,
-  AlertCircle,
-  ArrowRight,
-} from "lucide-react";
+import { X, Check, AlertCircle, ArrowRight } from "lucide-react";
 
 export interface SelectedPlanState {
   programmeId: string;
@@ -33,14 +28,14 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [institution, setInstitution] = useState("");
-  const [gradYear, setGradYear] = useState("2026");
+  const [gradYear, setGradYear] = useState(String(new Date().getFullYear()));
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [alreadyApplied, setAlreadyApplied] = useState(false);
-  const [payUrl, setpayUrl] = useState("");
+  const [payUrl, setPayUrl] = useState("");
 
   // Sync initial plan if passed
   useEffect(() => {
@@ -122,7 +117,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
           fullName,
           email,
           institution,
-          graduationYear: Number(gradYear),
+          graduationYear: gradYear === 'Other' ? null : Number(gradYear),
           programme: selectedPlanId,
           track: selectedTrack,
         }),
@@ -133,7 +128,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
       }
       const data = await res.json();
       setAlreadyApplied(Boolean(data.existing));
-      setpayUrl(data.payUrl ?? "");
+      setPayUrl(data.payUrl ?? "");
       setIsSubmitted(true);
     } catch (err) {
       setSubmitError(
@@ -401,10 +396,14 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                     onChange={(e) => setGradYear(e.target.value)}
                     className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg bg-white"
                   >
-                    <option value="2025">2025 (Recent Graduate)</option>
-                    <option value="2026">2026 (Final Year)</option>
-                    <option value="2027">2027 (Penultimate Year)</option>
-                    <option value="2028">2028+</option>
+                    {[0, 1, 2, 3].map((i) => {
+                      const y = new Date().getFullYear() + i;
+                      return (
+                        <option key={y} value={y}>
+                          {y}
+                        </option>
+                      );
+                    })}
                     <option value="Other">Other / Lifelong Learner</option>
                   </select>
                 </div>
@@ -434,7 +433,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                   <span className="text-[#102a43]">
                     Total Scheduled Programme Fee:
                   </span>
-                  <span className="text-lg text-[#ea580c] tabular-numbers">
+                  <span className="text-lg text-[#ea580c] tabular-nums">
                     ${plan.total}
                   </span>
                 </div>
@@ -488,7 +487,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
               </div>
             </form>
           ) : (
-            /* Successful Simulation Confirmation State */
+            /* Confirmation */
             <div className="text-center py-8 space-y-5 animate-in fade-in duration-300">
               <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto">
                 <Check className="w-8 h-8" />

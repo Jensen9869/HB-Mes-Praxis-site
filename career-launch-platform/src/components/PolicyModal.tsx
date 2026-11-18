@@ -46,9 +46,9 @@ export const PolicyModal: React.FC<PolicyModalProps> = ({
         {/* Content */}
         <div className="p-6 space-y-4 text-sm text-[#334155] leading-relaxed">
           <p>{content}</p>
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-500">
+          {/* <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-500">
             Official operational documents, formal legal jurisdiction, and dispute resolution terms will be updated prior to commercial enrolment onboarding.
-          </div>
+          </div> */}
         </div>
 
         {/* Footer */}

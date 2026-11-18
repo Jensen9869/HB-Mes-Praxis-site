@@ -22,7 +22,7 @@ import { SignInModal } from "./components/SignInModal";
 import { PolicyModal } from "./components/PolicyModal";
 // import { BusinessDecisionsModal } from "./components/BusinessDecisionsModal";
 import { ContactModal } from "./components/ContactModal";
-import { CookieBanner } from "./components/CookieBanner";
+// import { CookieBanner } from "./components/CookieBanner";
 import { PROGRAMMES_CONFIG } from "./config/platformConfig";
 import { PaymentResultModal } from "./components/PaymentResultModal";
 
@@ -197,7 +197,7 @@ export default function App() {
       />
 
       {/* Consent-Aware Analytics Placeholder */}
-      <CookieBanner />
+      {/* <CookieBanner /> */}
     </div>
   );
 }

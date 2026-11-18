@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { X, LogIn, Mail, CheckCircle2, AlertCircle } from "lucide-react";
-import { BRAND_CONFIG } from "../config/platformConfig";
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -76,8 +75,8 @@ export const SignInModal: React.FC<SignInModalProps> = ({
           {!isSent ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <p className="text-sm text-slate-600 leading-relaxed">
-                Enter your enrolled student email to access project assignment
-                briefs, mentor feedback logs, and portfolio repositories.
+                Enter the email you applied with and we'll send you a one-time
+                sign-in link.
               </p>
 
               <div>
@@ -108,20 +107,11 @@ export const SignInModal: React.FC<SignInModalProps> = ({
 
               <button
                 type="submit"
-                disabled= {isSending}
+                disabled={isSending}
                 className="w-full py-2.5 px-4 font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-lg transition-colors text-sm shadow-xs cursor-pointer"
               >
-                {isSending ? 'Sending.....' : 'Send Secure Magic Login Link'}
+                {isSending ? "Sending…" : "Send Secure Magic Login Link"}
               </button>
-
-              {/* <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-500">
-                <span className="font-semibold text-slate-700">
-                  Demonstration Note:{" "}
-                </span>
-                This portal connects to the SSO / Auth0 / Supabase / Firebase
-                identity provider once user accounts are activated for your
-                cohort.
-              </div> */}
             </form>
           ) : (
             <div className="text-center py-4 space-y-3">
