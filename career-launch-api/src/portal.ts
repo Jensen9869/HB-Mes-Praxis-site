@@ -16,7 +16,7 @@ portal.get("/", async (c) => {
   if (!userId) {
     return c.html(layout("Sign in", `
       <h1>Student portal</h1>
-      <p>You are not signed in. Go back to the <a href="https://career-launch-platform.white-glade-ab2c.workers.dev">main site</a> and use <strong>Sign In</strong> to get a login link.</p>`));
+      <p>You are not signed in. Go back to the <a href="https://praxis.birthdaymessaging.io">main site</a> and use <strong>Sign In</strong> to get a login link.</p>`));
   }
 
   const db = c.env.career_launch_db;

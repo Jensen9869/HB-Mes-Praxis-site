@@ -2,8 +2,7 @@
 // Colours mirror career-launch-platform/src/index.css.
 const BRAND = "Career Launch Platform";
 const SUPPORT = "support@careers.birthdaymessaging.io";
-export const LOGO_URL =
-  "https://career-launch-api.white-glade-ab2c.workers.dev/email/logo.png";
+export const LOGO_URL = "https://api.praxis.birthdaymessaging.io/email/logo.png";
 
 const PRIMARY = "#ea580c";
 const NAVY = "#102a43";

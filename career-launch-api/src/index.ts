@@ -40,16 +40,20 @@ const findEnrollee = (db: D1Database, enrolmentId: string) =>
 
 const app = new Hono<{ Bindings: Env }>();
 
-// change when go live
-const APP_URL = "https://career-launch-api.white-glade-ab2c.workers.dev";
-const SITE_URL = "https://career-launch-platform.white-glade-ab2c.workers.dev";
+const APP_URL = "https://api.praxis.birthdaymessaging.io";
+const SITE_URL = "https://praxis.birthdaymessaging.io";
 
-const logoPng = Uint8Array.from(atob(LOGO_PNG_BASE64), (ch) => ch.charCodeAt(0));
+const logoPng = Uint8Array.from(atob(LOGO_PNG_BASE64), (ch) =>
+  ch.charCodeAt(0),
+);
 app.get(
   "/email/logo.png",
   () =>
     new Response(logoPng, {
-      headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" },
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=86400",
+      },
     }),
 );
 
@@ -58,6 +62,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
+      "https://praxis.birthdaymessaging.io",
       "https://career-launch-platform.white-glade-ab2c.workers.dev",
     ],
   }),
@@ -419,7 +424,15 @@ app.post("/api/webhooks/paypal", async (c) => {
         .prepare(
           "INSERT OR IGNORE INTO payments (id, enrolment_id, provider_invoice_id, amount, currency, status, paid_at) VALUES (?,?,?,?,?,?,?)",
         )
-        .bind(r.id, enr.id, r.id, amount, r.amount.currency, "paid", r.create_time)
+        .bind(
+          r.id,
+          enr.id,
+          r.id,
+          amount,
+          r.amount.currency,
+          "paid",
+          r.create_time,
+        )
         .run();
       if (!inserted.meta.changes) break; // PayPal re-delivered this sale: already receipted
 
