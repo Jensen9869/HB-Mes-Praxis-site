@@ -1,16 +1,14 @@
-import React from 'react';
-import { Compass } from 'lucide-react';
-import { BRAND_CONFIG } from '../config/platformConfig';
+import React from "react";
+import { Compass } from "lucide-react";
+import { BRAND_CONFIG } from "../config/platformConfig";
 
 interface FooterSectionProps {
   onNavigateSection: (sectionId: string) => void;
-  onOpenPolicy: (title: string, content: string) => void;
   onOpenContact: () => void;
 }
 
 export const FooterSection: React.FC<FooterSectionProps> = ({
   onNavigateSection,
-  onOpenPolicy,
   onOpenContact,
 }) => {
   const currentYear = new Date().getFullYear();
@@ -19,7 +17,6 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
     <footer className="bg-[#102a43] text-slate-300 border-t border-white/10 pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8 pb-12 border-b border-white/10">
-          
           {/* Col 1 & 2: Brand wordmark & short description */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5 text-white">
@@ -30,26 +27,12 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
                 {BRAND_CONFIG.name}
               </span>
             </div>
-            
-            <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
-              Equipping ambitious university and college students with practical skills, mentor feedback, and tangible project portfolios to prepare for employment or entrepreneurship.
-            </p>
 
-            {/* Configurable Social Media Placeholders */}
-            {/* <div className="pt-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2.5">
-                Community & Social (Configurable)
-              </p>
-              <div className="flex items-center gap-3 text-xs text-slate-400">
-                <span className="hover:text-white transition-colors cursor-pointer" title="Configurable social handle">LinkedIn</span>
-                <span>·</span>
-                <span className="hover:text-white transition-colors cursor-pointer" title="Configurable social handle">X / Twitter</span>
-                <span>·</span>
-                <span className="hover:text-white transition-colors cursor-pointer" title="Configurable social handle">GitHub</span>
-                <span>·</span>
-                <span className="hover:text-white transition-colors cursor-pointer" title="Configurable social handle">Discord</span>
-              </div>
-            </div> */}
+            <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
+              Equipping ambitious university and college students with practical
+              skills, mentor feedback, and tangible project portfolios to
+              prepare for employment or entrepreneurship.
+            </p>
           </div>
 
           {/* Col 3: Pathways & Curriculum */}
@@ -60,7 +43,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
             <ul className="space-y-2 text-sm">
               <li>
                 <button
-                  onClick={() => onNavigateSection('apprenticeship')}
+                  onClick={() => onNavigateSection("apprenticeship")}
                   className="hover:text-white transition-colors text-left"
                 >
                   Apprenticeship ($97/mo)
@@ -68,7 +51,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
               </li>
               <li>
                 <button
-                  onClick={() => onNavigateSection('mentorship')}
+                  onClick={() => onNavigateSection("mentorship")}
                   className="hover:text-white transition-colors text-left"
                 >
                   Mentorship (3 or 6 Mo)
@@ -76,7 +59,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
               </li>
               <li>
                 <button
-                  onClick={() => onNavigateSection('skills')}
+                  onClick={() => onNavigateSection("skills")}
                   className="hover:text-white transition-colors text-left"
                 >
                   HR Pathway
@@ -84,7 +67,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
               </li>
               <li>
                 <button
-                  onClick={() => onNavigateSection('skills')}
+                  onClick={() => onNavigateSection("skills")}
                   className="hover:text-white transition-colors text-left"
                 >
                   Software Engineering Pathway
@@ -101,7 +84,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
             <ul className="space-y-2 text-sm">
               <li>
                 <button
-                  onClick={() => onNavigateSection('how-it-works')}
+                  onClick={() => onNavigateSection("how-it-works")}
                   className="hover:text-white transition-colors text-left"
                 >
                   How It Works
@@ -109,7 +92,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
               </li>
               <li>
                 <button
-                  onClick={() => onNavigateSection('faq')}
+                  onClick={() => onNavigateSection("faq")}
                   className="hover:text-white transition-colors text-left"
                 >
                   FAQ
@@ -133,70 +116,59 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
             </p>
             <ul className="space-y-2 text-sm">
               <li>
-                <button
-                  onClick={() =>
-                    onOpenPolicy(
-                      "Privacy Policy",
-                      "This platform respects your privacy. We collect only necessary details for programme enrollment, academic progress, and communication. We do not sell user data to third parties. A full legal privacy policy tailored to your operating jurisdiction will be linked prior to collecting live payments."
-                    )
-                  }
-                  className="hover:text-white transition-colors text-left"
+                <a
+                  href="/legal/privacy.html"
+                  target="_blank"
+                  rel="noopener"
+                  className="hover:text-white transition-colors"
                 >
                   Privacy Policy
-                </button>
+                </a>
               </li>
               <li>
-                <button
-                  onClick={() =>
-                    onOpenPolicy(
-                      "Terms & Conditions",
-                      "Programme participation requires adherence to academic integrity, mutual respect in collaborative projects, and timely completion of assignments. The platform provides educational training and does not guarantee employment or startup funding."
-                    )
-                  }
-                  className="hover:text-white transition-colors text-left"
+                <a
+                  href="/legal/terms.html"
+                  target="_blank"
+                  rel="noopener"
+                  className="hover:text-white transition-colors"
                 >
                   Terms and Conditions
-                </button>
+                </a>
               </li>
               <li>
-                <button
-                  onClick={() =>
-                    onOpenPolicy(
-                      "Refund and Cancellation Policy",
-                      "Statutory cancellation rights, cooling-off periods, and mid-cycle withdrawal policies will be published before payment processing begins. Final terms will clearly state notice periods and scheduled fee commitments."
-                    )
-                  }
-                  className="hover:text-white transition-colors text-left"
+                <a
+                  href="/legal/refunds.html"
+                  target="_blank"
+                  rel="noopener"
+                  className="hover:text-white transition-colors"
                 >
-                  Refund & Cancellation Policy
-                </button>
+                  Refund &amp; Cancellation Policy
+                </a>
               </li>
               <li>
-                <button
-                  onClick={() =>
-                    onOpenPolicy(
-                      "Accessibility Statement",
-                      "We are committed to digital accessibility complying with WCAG 2.1 AA standards. If you encounter any accessibility barriers on our site or curriculum portal, please inform us so we can promptly provide accommodations."
-                    )
-                  }
-                  className="hover:text-white transition-colors text-left"
+                <a
+                  href="/legal/accessibility.html"
+                  target="_blank"
+                  rel="noopener"
+                  className="hover:text-white transition-colors"
                 >
                   Accessibility Statement
-                </button>
+                </a>
               </li>
             </ul>
           </div>
-
         </div>
 
         {/* Bottom copyright notice with dynamic year */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <p>© {currentYear} {BRAND_CONFIG.name}. All rights reserved.</p>
+          <p>
+            © {currentYear} {BRAND_CONFIG.name}. All rights reserved.
+          </p>
           <p className="text-slate-500 text-center sm:text-right">
-            Transparent pricing: Apprenticeship ($97/mo, $1,164 total) · Mentorship (from $197/mo).
+            Transparent pricing in USD: Apprenticeship from $97/mo or $970
+            upfront · Mentorship from $197/mo.
           </p>
         </div>
-
       </div>
     </footer>
   );

@@ -28,9 +28,12 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
   onClose,
   initialPlan,
 }) => {
-  const [selectedPlanId, setSelectedPlanId] = useState<PlanKey>("apprenticeship");
+  const [selectedPlanId, setSelectedPlanId] =
+    useState<PlanKey>("apprenticeship");
   const [billing, setBilling] = useState<Billing>("monthly");
-  const [selectedTrack, setSelectedTrack] = useState<"swe" | "hr" | "undecided">("swe");
+  const [selectedTrack, setSelectedTrack] = useState<
+    "swe" | "hr" | "undecided"
+  >("swe");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [institution, setInstitution] = useState("");
@@ -67,10 +70,13 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
     if (!email.trim()) {
       newErrors.email = "Please enter your email address";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Please enter a valid email address (e.g. name@university.edu)";
+      newErrors.email =
+        "Please enter a valid email address (e.g. name@university.edu)";
     }
-    if (!institution.trim()) newErrors.institution = "Please specify your university or college";
-    if (!acceptedTerms) newErrors.terms = "Please review and accept the commitment terms";
+    if (!institution.trim())
+      newErrors.institution = "Please specify your university or college";
+    if (!acceptedTerms)
+      newErrors.terms = "Please review and accept the commitment terms";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -105,7 +111,11 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
       setPayUrl(data.payUrl ?? "");
       setIsSubmitted(true);
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Something went wrong, please try again");
+      setSubmitError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong, please try again",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -116,7 +126,11 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
     onClose();
   };
 
-  const planButton = (key: PlanKey, color: "orange" | "sky", badge?: string) => {
+  const planButton = (
+    key: PlanKey,
+    color: "orange" | "sky",
+    badge?: string,
+  ) => {
     const p = PRICING[key];
     const active =
       color === "orange"
@@ -128,17 +142,26 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
         type="button"
         onClick={() => setSelectedPlanId(key)}
         className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-          selectedPlanId === key ? active : "border-slate-200 hover:border-slate-300"
+          selectedPlanId === key
+            ? active
+            : "border-slate-200 hover:border-slate-300"
         }`}
       >
-        <div className={`text-xs font-bold ${label} flex items-center justify-between`}>
-          <span>{key === "apprenticeship" ? "Apprenticeship" : "Mentorship"}</span>
+        <div
+          className={`text-xs font-bold ${label} flex items-center justify-between`}
+        >
+          <span>
+            {key === "apprenticeship" ? "Apprenticeship" : "Mentorship"}
+          </span>
           {badge && (
-            <span className="text-[10px] bg-sky-100 text-[#0369a1] px-1 rounded">{badge}</span>
+            <span className="text-[10px] bg-sky-100 text-[#0369a1] px-1 rounded">
+              {badge}
+            </span>
           )}
         </div>
         <div className="text-lg font-extrabold text-[#102a43] mt-0.5">
-          {usd(p.monthly)} <span className="text-xs font-normal text-slate-500">/ mo</span>
+          {usd(p.monthly)}{" "}
+          <span className="text-xs font-normal text-slate-500">/ mo</span>
         </div>
         <div className="text-[11px] text-slate-600 mt-1">
           {p.months} Mo · Total {usd(p.total)}
@@ -161,7 +184,10 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
             <span className="text-xs font-semibold tracking-wider text-[#38bdf8] uppercase">
               Application &amp; Enrolment Portal
             </span>
-            <h2 id="modal-title" className="text-xl font-bold text-white mt-0.5">
+            <h2
+              id="modal-title"
+              className="text-xl font-bold text-white mt-0.5"
+            >
               Begin Your Pathway
             </h2>
           </div>
@@ -206,12 +232,18 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                         : "border-slate-200 hover:border-slate-300"
                     }`}
                   >
-                    <div className="text-xs font-bold text-[#102a43]">Pay monthly</div>
+                    <div className="text-xs font-bold text-[#102a43]">
+                      Pay monthly
+                    </div>
                     <div className="text-lg font-extrabold text-[#102a43] mt-0.5">
-                      {usd(plan.monthly)} <span className="text-xs font-normal text-slate-500">/ mo × {plan.months}</span>
+                      {usd(plan.monthly)}{" "}
+                      <span className="text-xs font-normal text-slate-500">
+                        / mo × {plan.months}
+                      </span>
                     </div>
                     <div className="text-[11px] text-slate-600 mt-1">
-                      {usd(plan.total)} in total · stops automatically after {plan.months} payments
+                      {usd(plan.total)} in total · stops automatically after{" "}
+                      {plan.months} payments
                     </div>
                   </button>
 
@@ -231,10 +263,14 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                       </span>
                     </div>
                     <div className="text-lg font-extrabold text-[#102a43] mt-0.5">
-                      {usd(plan.upfront)} <span className="text-xs font-normal text-slate-500">once</span>
+                      {usd(plan.upfront)}{" "}
+                      <span className="text-xs font-normal text-slate-500">
+                        once
+                      </span>
                     </div>
                     <div className="text-[11px] text-slate-600 mt-1">
-                      Save {usd(upfrontSaving(selectedPlanId))} · covers all {plan.months} months
+                      Save {usd(upfrontSaving(selectedPlanId))} · covers all{" "}
+                      {plan.months} months
                     </div>
                   </button>
                 </div>
@@ -276,7 +312,10 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                 </label>
 
                 <div>
-                  <label htmlFor="modal-name" className="block text-xs font-medium text-slate-700 mb-1">
+                  <label
+                    htmlFor="modal-name"
+                    className="block text-xs font-medium text-slate-700 mb-1"
+                  >
                     Full Legal Name *
                   </label>
                   <input
@@ -297,7 +336,10 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="modal-email" className="block text-xs font-medium text-slate-700 mb-1">
+                    <label
+                      htmlFor="modal-email"
+                      className="block text-xs font-medium text-slate-700 mb-1"
+                    >
                       Email Address *
                     </label>
                     <input
@@ -317,7 +359,10 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                   </div>
 
                   <div>
-                    <label htmlFor="modal-institution" className="block text-xs font-medium text-slate-700 mb-1">
+                    <label
+                      htmlFor="modal-institution"
+                      className="block text-xs font-medium text-slate-700 mb-1"
+                    >
                       University / College / School *
                     </label>
                     <input
@@ -338,7 +383,10 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                 </div>
 
                 <div>
-                  <label htmlFor="modal-grad" className="block text-xs font-medium text-slate-700 mb-1">
+                  <label
+                    htmlFor="modal-grad"
+                    className="block text-xs font-medium text-slate-700 mb-1"
+                  >
                     Expected Year of Graduation
                   </label>
                   <select
@@ -363,19 +411,27 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
               {/* Fee summary */}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold text-slate-700">Selected Pathway:</span>
+                  <span className="font-semibold text-slate-700">
+                    Selected Pathway:
+                  </span>
                   <span className="font-bold text-[#102a43]">{plan.name}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-600">Payment plan:</span>
                   <span className="text-slate-900">
-                    {isUpfront ? "One upfront payment" : `${plan.months} monthly instalments`}
+                    {isUpfront
+                      ? "One upfront payment"
+                      : `${plan.months} monthly instalments`}
                   </span>
                 </div>
                 {!isUpfront && (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-600">Monthly Scheduled Rate:</span>
-                    <span className="font-semibold text-slate-900">{usd(plan.monthly)} / month</span>
+                    <span className="text-slate-600">
+                      Monthly Scheduled Rate:
+                    </span>
+                    <span className="font-semibold text-slate-900">
+                      {usd(plan.monthly)} / month
+                    </span>
                   </div>
                 )}
                 <div className="flex items-center justify-between text-sm">
@@ -383,7 +439,9 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                   <span className="text-slate-900">{plan.months} months</span>
                 </div>
                 <div className="flex items-center justify-between text-sm pt-2 border-t border-slate-200 font-bold">
-                  <span className="text-[#102a43]">Total Programme Fee (USD):</span>
+                  <span className="text-[#102a43]">
+                    Total Programme Fee (USD):
+                  </span>
                   <span className="text-lg text-[#ea580c] tabular-nums">
                     {usd(isUpfront ? plan.upfront : plan.total)}
                     {isUpfront && (
@@ -405,12 +463,31 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                     className="mt-0.5 rounded text-[#ea580c] focus:ring-[#ea580c]"
                   />
                   <span>
-                    I understand that this programme focuses on practical skill building and portfolio
-                    development. I acknowledge the{" "}
+                    I understand that this programme focuses on practical skill
+                    building and portfolio development. I acknowledge the{" "}
                     {isUpfront
                       ? `one-off payment of ${usd(plan.upfront)} for the ${plan.months}-month programme`
                       : `${plan.months}-month commitment of ${usd(plan.monthly)}/month (total ${usd(plan.total)})`}
-                    , charged in US dollars, and that employment or startup success is not guaranteed.
+                    , charged in US dollars, and that employment or startup
+                    success is not guaranteed. I have read the{" "}
+                    <a
+                      href="/legal/terms.html"
+                      target="_blank"
+                      rel="noopener"
+                      className="underline text-[#ea580c]"
+                    >
+                      Terms
+                    </a>{" "}
+                    and{" "}
+                    <a
+                      href="/legal/refunds.html"
+                      target="_blank"
+                      rel="noopener"
+                      className="underline text-[#ea580c]"
+                    >
+                      Refund Policy
+                    </a>
+                    .
                   </span>
                 </label>
                 {errors.terms && (
@@ -434,7 +511,11 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                   disabled={isSubmitting}
                   className="w-full sm:flex-1 py-3 px-6 text-sm font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                 >
-                  <span>{isSubmitting ? "Submitting..." : "Submit Application Review"}</span>
+                  <span>
+                    {isSubmitting
+                      ? "Submitting..."
+                      : "Submit Application Review"}
+                  </span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -448,22 +529,28 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
 
               <div className="space-y-2">
                 <h3 className="text-2xl font-bold text-[#102a43]">
-                  {alreadyApplied ? "We already have your application" : "Application Received for Review"}
+                  {alreadyApplied
+                    ? "We already have your application"
+                    : "Application Received for Review"}
                 </h3>
                 <p className="text-sm text-slate-600 max-w-md mx-auto">
                   {alreadyApplied ? (
                     <>
                       Your earlier application for the{" "}
-                      <strong className="text-slate-900">{plan.name}</strong> is still waiting for
-                      payment. We've also resent the payment link to{" "}
+                      <strong className="text-slate-900">{plan.name}</strong> is
+                      still waiting for payment. We've also resent the payment
+                      link to{" "}
                       <strong className="text-slate-900">{email}</strong>.
                     </>
                   ) : (
                     <>
-                      Thanks, <strong className="text-slate-900">{fullName}</strong>. To secure your
-                      place in the <strong className="text-slate-900">{plan.name}</strong>, complete
-                      your {isUpfront ? "payment" : "first instalment"} below. We've also emailed this
-                      link to <strong className="text-slate-900">{email}</strong>.
+                      Thanks,{" "}
+                      <strong className="text-slate-900">{fullName}</strong>. To
+                      secure your place in the{" "}
+                      <strong className="text-slate-900">{plan.name}</strong>,
+                      complete your {isUpfront ? "payment" : "first instalment"}{" "}
+                      below. We've also emailed this link to{" "}
+                      <strong className="text-slate-900">{email}</strong>.
                     </>
                   )}
                 </p>
@@ -495,8 +582,9 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                     : `${usd(plan.monthly)}/mo for ${plan.months} months (Total: ${usd(plan.total)})`}
                 </p>
                 <p>
-                  <strong>Status:</strong> Awaiting {isUpfront ? "payment" : "first payment"} · your
-                  place is confirmed once payment clears.
+                  <strong>Status:</strong> Awaiting{" "}
+                  {isUpfront ? "payment" : "first payment"} · your place is
+                  confirmed once payment clears.
                 </p>
               </div>
 

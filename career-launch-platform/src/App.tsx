@@ -19,10 +19,7 @@ import { FinalCtaSection } from "./components/FinalCtaSection";
 import { FooterSection } from "./components/FooterSection";
 import { EnrolmentModal, SelectedPlanState } from "./components/EnrolmentModal";
 import { SignInModal } from "./components/SignInModal";
-import { PolicyModal } from "./components/PolicyModal";
-// import { BusinessDecisionsModal } from "./components/BusinessDecisionsModal";
 import { ContactModal } from "./components/ContactModal";
-// import { CookieBanner } from "./components/CookieBanner";
 import { PROGRAMMES_CONFIG } from "./config/platformConfig";
 import { PaymentResultModal } from "./components/PaymentResultModal";
 
@@ -34,15 +31,6 @@ export default function App() {
   );
   const [signInModalOpen, setSignInModalOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
-  const [policyModal, setPolicyModal] = useState<{
-    isOpen: boolean;
-    title: string;
-    content: string;
-  }>({
-    isOpen: false,
-    title: "",
-    content: "",
-  });
 
   const [paymentResult, setPaymentResult] = useState<
     "success" | "cancelled" | null
@@ -97,14 +85,6 @@ export default function App() {
   const handleCustomPlanSelect = (plan: SelectedPlanState) => {
     setSelectedPlan(plan);
     setEnrolmentModalOpen(true);
-  };
-
-  const handleOpenPolicy = (title: string, content: string) => {
-    setPolicyModal({
-      isOpen: true,
-      title,
-      content,
-    });
   };
 
   return (
@@ -163,7 +143,6 @@ export default function App() {
       {/* SECTION 13 — Footer */}
       <FooterSection
         onNavigateSection={handleNavigateSection}
-        onOpenPolicy={handleOpenPolicy}
         onOpenContact={() => setContactModalOpen(true)}
       />
 
@@ -180,24 +159,17 @@ export default function App() {
         onClose={() => setSignInModalOpen(false)}
       />
 
-      {/* Legal & Terms Policy Modal */}
-      <PolicyModal
-        isOpen={policyModal.isOpen}
-        title={policyModal.title}
-        content={policyModal.content}
-        onClose={() => setPolicyModal({ ...policyModal, isOpen: false })}
+      {/* Contact Modal */}
+      <ContactModal
+        isOpen={contactModalOpen}
+        onClose={() => setContactModalOpen(false)}
       />
-
-      {/* Business Decisions Governance Checklist Modal (Deliverable Item 7) */}
-      <ContactModal isOpen={contactModalOpen} onClose={() => setContactModalOpen(false)} />
 
       <PaymentResultModal
         result={paymentResult}
         onClose={() => setPaymentResult(null)}
       />
 
-      {/* Consent-Aware Analytics Placeholder */}
-      {/* <CookieBanner /> */}
     </div>
   );
 }
