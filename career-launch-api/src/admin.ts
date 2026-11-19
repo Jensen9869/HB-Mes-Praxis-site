@@ -59,7 +59,7 @@ admin.get("/", async (c) => {
   const db = c.env.career_launch_db;
   const where = status ? "WHERE e.status = ?" : "";
   const stmt = db.prepare(
-    `SELECT e.id, e.programme, e.track, e.status, e.created_at, e.provider_subscription_id,
+    `SELECT e.id, e.programme, e.track, e.status, e.created_at, e.provider_subscription_id, e.billing,
             u.full_name, u.email, u.institution,
             (SELECT COUNT(*) FROM payments p WHERE p.enrolment_id = e.id) AS paid_count
      FROM enrolments e JOIN users u ON u.id = e.user_id ${where} ORDER BY e.created_at DESC LIMIT 200`,
@@ -100,7 +100,7 @@ admin.get("/", async (c) => {
     <tr>
       <td>${esc(r.full_name)}<br><span class="muted">${esc(r.email)}</span></td>
       <td>${esc(r.institution ?? "")}</td>
-      <td>${esc(r.programme)}<br><span class="muted">${esc(r.track ?? "")}</span></td>
+      <td>${esc(r.programme)} <span class="muted">· ${r.billing === "upfront" ? "Upfront" : "Monthly"}</span><br><span class="muted">${esc(r.track ?? "")}</span></td>
       <td>${pill(r.status)}</td>
       <td>${r.paid_count}</td>
       <td class="muted">${esc(r.created_at)}</td>
@@ -197,12 +197,12 @@ admin.get("/export.csv", async (c) => {
   const rows = (
     await c.env.career_launch_db
       .prepare(
-        "SELECT u.full_name, u.email, u.institution, u.graduation_year, e.programme, e.track, e.status, e.created_at FROM enrolments e JOIN users u ON u.id = e.user_id ORDER BY e.created_at DESC",
+        "SELECT u.full_name, u.email, u.institution, u.graduation_year, e.programme, e.track, e.status, e.billing, e.created_at FROM enrolments e JOIN users u ON u.id = e.user_id ORDER BY e.created_at DESC",
       )
       .all<any>()
   ).results;
   const csv = [
-    "name,email,institution,graduation_year,programme,track,status,applied",
+    "name,email,institution,graduation_year,programme,track,status,applied,billing",
     ...rows.map((r: any) =>
       [
         r.full_name,
@@ -213,6 +213,7 @@ admin.get("/export.csv", async (c) => {
         r.track,
         r.status,
         r.created_at,
+        r.billing,
       ]
         .map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`)
         .join(","),
@@ -224,14 +225,3 @@ admin.get("/export.csv", async (c) => {
   });
 });
 
-// TEMP — delete after plans are created
-// admin.get("/paypal-setup", async (c) => {
-//   if (!(await isAdmin(c))) return c.redirect("/admin/login");
-//   const token = await paypalToken(
-//     c.env.PAYPAL_BASE,
-//     c.env.PAYPAL_CLIENT_ID,
-//     c.env.PAYPAL_CLIENT_SECRET,
-//   );
-//   const ids = await createProductAndPlans(c.env.PAYPAL_BASE, token, "USD");
-//   return c.json(ids);
-// });

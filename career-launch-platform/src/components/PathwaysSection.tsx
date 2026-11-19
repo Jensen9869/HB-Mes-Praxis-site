@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
-import { Check, ArrowRight, Sparkles, HelpCircle } from 'lucide-react';
-import { PROGRAMMES_CONFIG } from '../config/platformConfig';
+import { Check, ArrowRight } from 'lucide-react';
+import {
+  PROGRAMMES_CONFIG,
+  PRICING,
+  usd,
+  upfrontSaving,
+  type Billing,
+  type PlanKey,
+} from '../config/platformConfig';
 
 interface PathwaysSectionProps {
   onSelectPlan: (plan: {
@@ -9,21 +16,106 @@ interface PathwaysSectionProps {
     monthlyPrice: number;
     totalFee: number;
     durationMonths: number;
+    billing: Billing;
   }) => void;
 }
 
+/** Monthly / Pay upfront switch used on both cards. */
+const BillingToggle: React.FC<{
+  value: Billing;
+  onChange: (b: Billing) => void;
+  accent: 'orange' | 'sky';
+}> = ({ value, onChange, accent }) => {
+  const active =
+    accent === 'orange'
+      ? 'bg-white text-[#102a43] shadow-sm border border-orange-300'
+      : 'bg-white text-[#102a43] shadow-sm border border-sky-300';
+  return (
+    <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-lg text-xs font-semibold mb-4">
+      <button
+        type="button"
+        onClick={() => onChange('monthly')}
+        className={`py-2 rounded-md transition-all cursor-pointer ${value === 'monthly' ? active : 'text-slate-600 hover:text-[#102a43]'}`}
+      >
+        Pay monthly
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange('upfront')}
+        className={`py-2 rounded-md transition-all cursor-pointer ${value === 'upfront' ? active : 'text-slate-600 hover:text-[#102a43]'}`}
+      >
+        Pay upfront &amp; save
+      </button>
+    </div>
+  );
+};
+
+/** Price box that switches between monthly and upfront for one plan. */
+const PriceBox: React.FC<{ plan: PlanKey; billing: Billing }> = ({ plan, billing }) => {
+  const p = PRICING[plan];
+  if (billing === 'upfront') {
+    return (
+      <div className="bg-emerald-50 rounded-xl p-5 border border-emerald-200 mb-6">
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <span className="text-3xl sm:text-4xl font-extrabold text-[#102a43] tabular-nums">
+            {usd(p.upfront)}
+          </span>
+          <span className="text-sm font-semibold text-slate-600">one payment</span>
+          <span className="ml-auto text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+            {p.upfrontBadge}
+          </span>
+        </div>
+        <p className="text-xs font-medium text-slate-600 mt-1">
+          Covers all {p.months} months. You save {usd(upfrontSaving(plan))} compared with{' '}
+          {usd(p.total)} paid monthly. Prices in USD.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="bg-slate-50 rounded-xl p-5 border border-slate-200/80 mb-6">
+      <div className="flex items-baseline gap-2">
+        <span className="text-3xl sm:text-4xl font-extrabold text-[#102a43] tabular-nums">
+          {usd(p.monthly)}
+        </span>
+        <span className="text-sm font-semibold text-slate-600">/ month</span>
+      </div>
+      <p className="text-xs font-medium text-slate-600 mt-1">
+        {p.months}-month programme commitment. Total scheduled fees: {usd(p.total)}. Prices in USD.
+      </p>
+    </div>
+  );
+};
+
 export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }) => {
   const { apprenticeship, mentorship } = PROGRAMMES_CONFIG;
-  const [mentorshipTier, setMentorshipTier] = useState<'6mo' | '3mo'>('6mo');
+  const [mentorshipTier, setMentorshipTier] = useState<'mentorship-6mo' | 'mentorship-3mo'>('mentorship-6mo');
+  const [apprBilling, setApprBilling] = useState<Billing>('monthly');
+  const [mentBilling, setMentBilling] = useState<Billing>('monthly');
 
-  const selectedMentorshipOption = mentorship.options.find(
-    (opt) => (mentorshipTier === '6mo' ? opt.id === 'mentorship-6mo' : opt.id === 'mentorship-3mo')
-  ) || mentorship.options[1];
+  const ment = PRICING[mentorshipTier];
+  const six = PRICING['mentorship-6mo'];
+  const three = PRICING['mentorship-3mo'];
+
+  const select = (plan: PlanKey, programmeId: string, billing: Billing) =>
+    onSelectPlan({
+      programmeId,
+      planName: PRICING[plan].name,
+      monthlyPrice: PRICING[plan].monthly,
+      totalFee: PRICING[plan].total,
+      durationMonths: PRICING[plan].months,
+      billing,
+    });
+
+  const ctaLabel = (plan: PlanKey, billing: Billing, verb: string) =>
+    billing === 'upfront'
+      ? `${verb} — ${usd(PRICING[plan].upfront)} upfront`
+      : `${verb} — ${usd(PRICING[plan].monthly)}/mo`;
 
   return (
     <section id="programmes" className="py-16 sm:py-24 bg-[#f8fafc] scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Section Header */}
         <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
           <p className="text-xs sm:text-sm font-semibold tracking-wider text-[#ea580c] uppercase mb-2">
@@ -37,16 +129,14 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
           </p>
         </div>
 
-        {/* Two Pathway Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-          
-          {/* ================= CARD A: APPRENTICESHIP PROGRAMME ================= */}
-          <div 
+
+          {/* ================= CARD A: APPRENTICESHIP ================= */}
+          <div
             id="apprenticeship"
             className="bg-white rounded-2xl border-2 border-slate-200/90 shadow-sm p-6 sm:p-8 flex flex-col justify-between hover:border-slate-300 transition-all scroll-mt-24"
           >
             <div>
-              {/* Top Label & Headline */}
               <div className="flex items-center justify-between gap-2 mb-2">
                 <span className="text-xs font-bold tracking-wider text-[#ea580c] uppercase">
                   {apprenticeship.label}
@@ -62,20 +152,9 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
                 {apprenticeship.description}
               </p>
 
-              {/* Price Box */}
-              <div className="bg-slate-50 rounded-xl p-5 border border-slate-200/80 mb-6">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl sm:text-4xl font-extrabold text-[#102a43] tabular-numbers">
-                    ${apprenticeship.monthlyPrice}
-                  </span>
-                  <span className="text-sm font-semibold text-slate-600">/ month</span>
-                </div>
-                <p className="text-xs font-medium text-slate-600 mt-1">
-                  {apprenticeship.billingNote}
-                </p>
-              </div>
+              <BillingToggle value={apprBilling} onChange={setApprBilling} accent="orange" />
+              <PriceBox plan="apprenticeship" billing={apprBilling} />
 
-              {/* Benefits List */}
               <div className="space-y-3 mb-8">
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                   What is included:
@@ -91,21 +170,12 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
               </div>
             </div>
 
-            {/* CTA & Configurable Note */}
             <div className="pt-4 border-t border-slate-100">
               <button
-                onClick={() =>
-                  onSelectPlan({
-                    programmeId: apprenticeship.id,
-                    planName: "Apprenticeship Programme",
-                    monthlyPrice: apprenticeship.monthlyPrice,
-                    totalFee: apprenticeship.totalScheduledFee,
-                    durationMonths: apprenticeship.durationMonths
-                  })
-                }
+                onClick={() => select('apprenticeship', apprenticeship.id, apprBilling)}
                 className="w-full py-3.5 px-6 font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] active:bg-[#9a3412] rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 group cursor-pointer"
               >
-                <span>{apprenticeship.ctaText}</span>
+                <span>{ctaLabel('apprenticeship', apprBilling, apprenticeship.ctaText)}</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </button>
               <p className="text-xs text-center text-slate-500 mt-2.5">
@@ -117,13 +187,12 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
             </div>
           </div>
 
-          {/* ================= CARD B: PROFESSIONAL MENTORSHIP ================= */}
-          <div 
+          {/* ================= CARD B: MENTORSHIP ================= */}
+          <div
             id="mentorship"
             className="bg-white rounded-2xl border-2 border-sky-200/90 shadow-sm p-6 sm:p-8 flex flex-col justify-between hover:border-sky-300 transition-all relative scroll-mt-24"
           >
             <div>
-              {/* Top Label & Headline */}
               <div className="flex items-center justify-between gap-2 mb-2">
                 <span className="text-xs font-bold tracking-wider text-[#0284c7] uppercase">
                   {mentorship.label}
@@ -139,20 +208,17 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
                 {mentorship.description}
               </p>
 
-              {/* Mentorship Duration Selector & Pricing Options */}
-              <div className="mb-6">
+              {/* Duration selector */}
+              <div className="mb-4">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
                   Select Mentorship Duration:
                 </label>
                 <div className="grid grid-cols-2 gap-3 p-1.5 bg-slate-100 rounded-xl">
-                  {/* Option 2: 6 Months (Highlighted as lower monthly rate) */}
                   <button
                     type="button"
-                    onClick={() => setMentorshipTier('6mo')}
+                    onClick={() => setMentorshipTier('mentorship-6mo')}
                     className={`relative p-3 rounded-lg text-left transition-all cursor-pointer ${
-                      mentorshipTier === '6mo'
-                        ? 'bg-white shadow-sm border border-sky-300'
-                        : 'hover:bg-slate-200/60'
+                      mentorshipTier === 'mentorship-6mo' ? 'bg-white shadow-sm border border-sky-300' : 'hover:bg-slate-200/60'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-0.5">
@@ -161,38 +227,37 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
                         Lower monthly rate
                       </span>
                     </div>
-                    <div className="text-lg font-extrabold text-[#102a43] tabular-numbers">
-                      $197 <span className="text-xs font-normal text-slate-500">/ mo</span>
+                    <div className="text-lg font-extrabold text-[#102a43] tabular-nums">
+                      {usd(six.monthly)} <span className="text-xs font-normal text-slate-500">/ mo</span>
                     </div>
                     <p className="text-[11px] text-slate-500 mt-0.5">
-                      Total: $1,182
+                      Total: {usd(six.total)} · Upfront: {usd(six.upfront)}
                     </p>
                   </button>
 
-                  {/* Option 1: 3 Months */}
                   <button
                     type="button"
-                    onClick={() => setMentorshipTier('3mo')}
+                    onClick={() => setMentorshipTier('mentorship-3mo')}
                     className={`p-3 rounded-lg text-left transition-all cursor-pointer ${
-                      mentorshipTier === '3mo'
-                        ? 'bg-white shadow-sm border border-sky-300'
-                        : 'hover:bg-slate-200/60'
+                      mentorshipTier === 'mentorship-3mo' ? 'bg-white shadow-sm border border-sky-300' : 'hover:bg-slate-200/60'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-0.5">
                       <span className="text-xs font-bold text-[#102a43]">3 Months</span>
                     </div>
-                    <div className="text-lg font-extrabold text-[#102a43] tabular-numbers">
-                      $247 <span className="text-xs font-normal text-slate-500">/ mo</span>
+                    <div className="text-lg font-extrabold text-[#102a43] tabular-nums">
+                      {usd(three.monthly)} <span className="text-xs font-normal text-slate-500">/ mo</span>
                     </div>
                     <p className="text-[11px] text-slate-500 mt-0.5">
-                      Total: $741
+                      Total: {usd(three.total)} · Upfront: {usd(three.upfront)}
                     </p>
                   </button>
                 </div>
               </div>
 
-              {/* Benefits List */}
+              <BillingToggle value={mentBilling} onChange={setMentBilling} accent="sky" />
+              <PriceBox plan={mentorshipTier} billing={mentBilling} />
+
               <div className="space-y-3 mb-8">
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                   What is included:
@@ -208,25 +273,20 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
               </div>
             </div>
 
-            {/* CTA & Selected Option Confirmation */}
             <div className="pt-4 border-t border-slate-100">
               <button
-                onClick={() =>
-                  onSelectPlan({
-                    programmeId: mentorship.id,
-                    planName: selectedMentorshipOption.title,
-                    monthlyPrice: selectedMentorshipOption.monthlyPrice,
-                    totalFee: selectedMentorshipOption.totalScheduledFee,
-                    durationMonths: selectedMentorshipOption.durationMonths
-                  })
-                }
+                onClick={() => select(mentorshipTier, mentorship.id, mentBilling)}
                 className="w-full py-3.5 px-6 font-semibold text-white bg-[#102a43] hover:bg-[#1a365d] active:bg-[#0c1f33] rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 group cursor-pointer"
               >
-                <span>{selectedMentorshipOption.ctaText} — ${selectedMentorshipOption.monthlyPrice}/mo</span>
+                <span>
+                  {ctaLabel(mentorshipTier, mentBilling, `Choose ${ment.months} Months`)}
+                </span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </button>
               <p className="text-xs text-center text-slate-500 mt-2.5">
-                Total scheduled fee: ${selectedMentorshipOption.totalScheduledFee} across {selectedMentorshipOption.durationMonths} months.
+                {mentBilling === 'upfront'
+                  ? `One payment of ${usd(ment.upfront)} covers all ${ment.months} months.`
+                  : `Total scheduled fee: ${usd(ment.total)} across ${ment.months} months.`}
               </p>
               <p className="text-[11px] text-slate-400 text-center mt-1 italic">
                 * {mentorship.disclaimer}
@@ -235,7 +295,6 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
           </div>
 
         </div>
-
       </div>
     </section>
   );

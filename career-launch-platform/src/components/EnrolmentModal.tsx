@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { X, Check, AlertCircle, ArrowRight } from "lucide-react";
+import {
+  PRICING,
+  usd,
+  upfrontSaving,
+  type Billing,
+  type PlanKey,
+} from "../config/platformConfig";
 
 export interface SelectedPlanState {
   programmeId: string;
@@ -7,6 +14,7 @@ export interface SelectedPlanState {
   monthlyPrice: number;
   totalFee: number;
   durationMonths: number;
+  billing?: Billing;
 }
 
 interface EnrolmentModalProps {
@@ -20,11 +28,9 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
   onClose,
   initialPlan,
 }) => {
-  const [selectedPlanId, setSelectedPlanId] =
-    useState<string>("apprenticeship");
-  const [selectedTrack, setSelectedTrack] = useState<
-    "swe" | "hr" | "undecided"
-  >("swe");
+  const [selectedPlanId, setSelectedPlanId] = useState<PlanKey>("apprenticeship");
+  const [billing, setBilling] = useState<Billing>("monthly");
+  const [selectedTrack, setSelectedTrack] = useState<"swe" | "hr" | "undecided">("swe");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [institution, setInstitution] = useState("");
@@ -37,51 +43,23 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
   const [alreadyApplied, setAlreadyApplied] = useState(false);
   const [payUrl, setPayUrl] = useState("");
 
-  // Sync initial plan if passed
+  // Sync plan + billing from whichever button opened the modal
   useEffect(() => {
-    if (initialPlan) {
-      if (initialPlan.programmeId === "prog-apprenticeship") {
-        setSelectedPlanId("apprenticeship");
-      } else if (initialPlan.planName.includes("3-Month")) {
-        setSelectedPlanId("mentorship-3mo");
-      } else {
-        setSelectedPlanId("mentorship-6mo");
-      }
+    if (!initialPlan) return;
+    if (initialPlan.programmeId === "prog-apprenticeship") {
+      setSelectedPlanId("apprenticeship");
+    } else if (initialPlan.planName.includes("3-Month")) {
+      setSelectedPlanId("mentorship-3mo");
+    } else {
+      setSelectedPlanId("mentorship-6mo");
     }
+    setBilling(initialPlan.billing ?? "monthly");
   }, [initialPlan]);
 
   if (!isOpen) return null;
 
-  // Plan metadata helper
-  const getCurrentPlanDetails = () => {
-    if (selectedPlanId === "apprenticeship") {
-      return {
-        name: "Apprenticeship Programme",
-        monthly: 97,
-        months: 12,
-        total: 1164,
-        commitment: "12-month programme commitment",
-      };
-    }
-    if (selectedPlanId === "mentorship-3mo") {
-      return {
-        name: "3-Month Professional Mentorship",
-        monthly: 247,
-        months: 3,
-        total: 741,
-        commitment: "3-month quarterly sprint",
-      };
-    }
-    return {
-      name: "6-Month Professional Mentorship",
-      monthly: 197,
-      months: 6,
-      total: 1182,
-      commitment: "6-month extended mentorship (lower monthly rate)",
-    };
-  };
-
-  const plan = getCurrentPlanDetails();
+  const plan = PRICING[selectedPlanId];
+  const isUpfront = billing === "upfront";
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -89,15 +67,10 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
     if (!email.trim()) {
       newErrors.email = "Please enter your email address";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email =
-        "Please enter a valid email address (e.g. name@university.edu)";
+      newErrors.email = "Please enter a valid email address (e.g. name@university.edu)";
     }
-    if (!institution.trim())
-      newErrors.institution = "Please specify your university or college";
-    if (!acceptedTerms)
-      newErrors.terms =
-        "Please review and accept the transparent commitment terms";
-
+    if (!institution.trim()) newErrors.institution = "Please specify your university or college";
+    if (!acceptedTerms) newErrors.terms = "Please review and accept the commitment terms";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -117,9 +90,10 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
           fullName,
           email,
           institution,
-          graduationYear: gradYear === 'Other' ? null : Number(gradYear),
+          graduationYear: gradYear === "Other" ? null : Number(gradYear),
           programme: selectedPlanId,
           track: selectedTrack,
+          billing,
         }),
       });
       if (!res.ok) {
@@ -131,11 +105,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
       setPayUrl(data.payUrl ?? "");
       setIsSubmitted(true);
     } catch (err) {
-      setSubmitError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong, please try again",
-      );
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong, please try again");
     } finally {
       setIsSubmitting(false);
     }
@@ -146,6 +116,37 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
     onClose();
   };
 
+  const planButton = (key: PlanKey, color: "orange" | "sky", badge?: string) => {
+    const p = PRICING[key];
+    const active =
+      color === "orange"
+        ? "border-[#ea580c] bg-orange-50/50 ring-2 ring-[#ea580c]/20"
+        : "border-[#0284c7] bg-sky-50/50 ring-2 ring-[#0284c7]/20";
+    const label = color === "orange" ? "text-[#ea580c]" : "text-[#0284c7]";
+    return (
+      <button
+        type="button"
+        onClick={() => setSelectedPlanId(key)}
+        className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+          selectedPlanId === key ? active : "border-slate-200 hover:border-slate-300"
+        }`}
+      >
+        <div className={`text-xs font-bold ${label} flex items-center justify-between`}>
+          <span>{key === "apprenticeship" ? "Apprenticeship" : "Mentorship"}</span>
+          {badge && (
+            <span className="text-[10px] bg-sky-100 text-[#0369a1] px-1 rounded">{badge}</span>
+          )}
+        </div>
+        <div className="text-lg font-extrabold text-[#102a43] mt-0.5">
+          {usd(p.monthly)} <span className="text-xs font-normal text-slate-500">/ mo</span>
+        </div>
+        <div className="text-[11px] text-slate-600 mt-1">
+          {p.months} Mo · Total {usd(p.total)}
+        </div>
+      </button>
+    );
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6"
@@ -154,16 +155,13 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
       aria-labelledby="modal-title"
     >
       <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200 my-8">
-        {/* Modal Header */}
+        {/* Header */}
         <div className="bg-[#102a43] text-white px-6 py-5 flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold tracking-wider text-[#38bdf8] uppercase">
-              Application & Enrolment Portal
+              Application &amp; Enrolment Portal
             </span>
-            <h2
-              id="modal-title"
-              className="text-xl font-bold text-white mt-0.5"
-            >
+            <h2 id="modal-title" className="text-xl font-bold text-white mt-0.5">
               Begin Your Pathway
             </h2>
           </div>
@@ -177,146 +175,108 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
           </button>
         </div>
 
-        {/* Modal Body */}
+        {/* Body */}
         <div className="p-6 sm:p-8 max-h-[80vh] overflow-y-auto">
           {!isSubmitted ? (
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Step 1: Confirm Programme Selection */}
+              {/* Step 1: Programme */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#102a43] mb-2">
-                  1. Select Your Programme & Duration
+                  1. Select Your Programme &amp; Duration
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {/* Apprenticeship 12mo */}
+                  {planButton("apprenticeship", "orange")}
+                  {planButton("mentorship-6mo", "sky", "Lower Rate")}
+                  {planButton("mentorship-3mo", "sky")}
+                </div>
+              </div>
+
+              {/* Step 2: Payment plan */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#102a43] mb-2">
+                  2. Choose How You Pay
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => setSelectedPlanId("apprenticeship")}
+                    onClick={() => setBilling("monthly")}
                     className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-                      selectedPlanId === "apprenticeship"
-                        ? "border-[#ea580c] bg-orange-50/50 ring-2 ring-[#ea580c]/20"
+                      !isUpfront
+                        ? "border-[#102a43] bg-slate-50 ring-2 ring-[#102a43]/15"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
                   >
-                    <div className="text-xs font-bold text-[#ea580c]">
-                      Apprenticeship
-                    </div>
+                    <div className="text-xs font-bold text-[#102a43]">Pay monthly</div>
                     <div className="text-lg font-extrabold text-[#102a43] mt-0.5">
-                      $97{" "}
-                      <span className="text-xs font-normal text-slate-500">
-                        / mo
-                      </span>
+                      {usd(plan.monthly)} <span className="text-xs font-normal text-slate-500">/ mo × {plan.months}</span>
                     </div>
                     <div className="text-[11px] text-slate-600 mt-1">
-                      12 Mo · Total $1,164
+                      {usd(plan.total)} in total · stops automatically after {plan.months} payments
                     </div>
                   </button>
 
-                  {/* Mentorship 6mo */}
                   <button
                     type="button"
-                    onClick={() => setSelectedPlanId("mentorship-6mo")}
+                    onClick={() => setBilling("upfront")}
                     className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-                      selectedPlanId === "mentorship-6mo"
-                        ? "border-[#0284c7] bg-sky-50/50 ring-2 ring-[#0284c7]/20"
+                      isUpfront
+                        ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500/20"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
                   >
-                    <div className="text-xs font-bold text-[#0284c7] flex items-center justify-between">
-                      <span>Mentorship</span>
-                      <span className="text-[10px] bg-sky-100 text-[#0369a1] px-1 rounded">
-                        Lower Rate
+                    <div className="text-xs font-bold text-emerald-700 flex items-center justify-between">
+                      <span>Pay upfront</span>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1 rounded">
+                        {plan.upfrontBadge}
                       </span>
                     </div>
                     <div className="text-lg font-extrabold text-[#102a43] mt-0.5">
-                      $197{" "}
-                      <span className="text-xs font-normal text-slate-500">
-                        / mo
-                      </span>
+                      {usd(plan.upfront)} <span className="text-xs font-normal text-slate-500">once</span>
                     </div>
                     <div className="text-[11px] text-slate-600 mt-1">
-                      6 Mo · Total $1,182
-                    </div>
-                  </button>
-
-                  {/* Mentorship 3mo */}
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPlanId("mentorship-3mo")}
-                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-                      selectedPlanId === "mentorship-3mo"
-                        ? "border-[#0284c7] bg-sky-50/50 ring-2 ring-[#0284c7]/20"
-                        : "border-slate-200 hover:border-slate-300"
-                    }`}
-                  >
-                    <div className="text-xs font-bold text-[#0284c7]">
-                      Mentorship
-                    </div>
-                    <div className="text-lg font-extrabold text-[#102a43] mt-0.5">
-                      $247{" "}
-                      <span className="text-xs font-normal text-slate-500">
-                        / mo
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-slate-600 mt-1">
-                      3 Mo · Total $741
+                      Save {usd(upfrontSaving(selectedPlanId))} · covers all {plan.months} months
                     </div>
                   </button>
                 </div>
               </div>
 
-              {/* Step 2: Track Preference */}
+              {/* Step 3: Track */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#102a43] mb-2">
-                  2. Select Desired Specialisation Track
+                  3. Select Desired Specialisation Track
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedTrack("swe")}
-                    className={`py-2.5 px-3 rounded-lg border text-sm font-medium transition-all cursor-pointer ${
-                      selectedTrack === "swe"
-                        ? "border-[#102a43] bg-slate-900 text-white font-semibold"
-                        : "border-slate-200 text-slate-700 hover:bg-slate-50"
-                    }`}
-                  >
-                    Software Engineering
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedTrack("hr")}
-                    className={`py-2.5 px-3 rounded-lg border text-sm font-medium transition-all cursor-pointer ${
-                      selectedTrack === "hr"
-                        ? "border-[#102a43] bg-slate-900 text-white font-semibold"
-                        : "border-slate-200 text-slate-700 hover:bg-slate-50"
-                    }`}
-                  >
-                    Human Resources
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedTrack("undecided")}
-                    className={`py-2.5 px-3 rounded-lg border text-sm font-medium transition-all cursor-pointer ${
-                      selectedTrack === "undecided"
-                        ? "border-[#102a43] bg-slate-900 text-white font-semibold"
-                        : "border-slate-200 text-slate-700 hover:bg-slate-50"
-                    }`}
-                  >
-                    General / Undecided
-                  </button>
+                  {(
+                    [
+                      ["swe", "Software Engineering"],
+                      ["hr", "Human Resources"],
+                      ["undecided", "General / Undecided"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setSelectedTrack(key)}
+                      className={`py-2.5 px-3 rounded-lg border text-sm font-medium transition-all cursor-pointer ${
+                        selectedTrack === key
+                          ? "border-[#102a43] bg-slate-900 text-white font-semibold"
+                          : "border-slate-200 text-slate-700 hover:bg-slate-50"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Step 3: Applicant Details */}
+              {/* Step 4: Details */}
               <div className="space-y-4 pt-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#102a43]">
-                  3. Student & Applicant Information
+                  4. Student &amp; Applicant Information
                 </label>
 
                 <div>
-                  <label
-                    htmlFor="modal-name"
-                    className="block text-xs font-medium text-slate-700 mb-1"
-                  >
+                  <label htmlFor="modal-name" className="block text-xs font-medium text-slate-700 mb-1">
                     Full Legal Name *
                   </label>
                   <input
@@ -337,10 +297,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label
-                      htmlFor="modal-email"
-                      className="block text-xs font-medium text-slate-700 mb-1"
-                    >
+                    <label htmlFor="modal-email" className="block text-xs font-medium text-slate-700 mb-1">
                       Email Address *
                     </label>
                     <input
@@ -360,10 +317,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="modal-institution"
-                      className="block text-xs font-medium text-slate-700 mb-1"
-                    >
+                    <label htmlFor="modal-institution" className="block text-xs font-medium text-slate-700 mb-1">
                       University / College / School *
                     </label>
                     <input
@@ -384,10 +338,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="modal-grad"
-                    className="block text-xs font-medium text-slate-700 mb-1"
-                  >
+                  <label htmlFor="modal-grad" className="block text-xs font-medium text-slate-700 mb-1">
                     Expected Year of Graduation
                   </label>
                   <select
@@ -409,37 +360,42 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                 </div>
               </div>
 
-              {/* Transparent Fee & Commitment Disclosure */}
+              {/* Fee summary */}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold text-slate-700">
-                    Selected Pathway:
-                  </span>
+                  <span className="font-semibold text-slate-700">Selected Pathway:</span>
                   <span className="font-bold text-[#102a43]">{plan.name}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-600">
-                    Monthly Scheduled Rate:
-                  </span>
-                  <span className="font-semibold text-slate-900">
-                    ${plan.monthly} / month
+                  <span className="text-slate-600">Payment plan:</span>
+                  <span className="text-slate-900">
+                    {isUpfront ? "One upfront payment" : `${plan.months} monthly instalments`}
                   </span>
                 </div>
+                {!isUpfront && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-600">Monthly Scheduled Rate:</span>
+                    <span className="font-semibold text-slate-900">{usd(plan.monthly)} / month</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-600">Duration Commitment:</span>
                   <span className="text-slate-900">{plan.months} months</span>
                 </div>
                 <div className="flex items-center justify-between text-sm pt-2 border-t border-slate-200 font-bold">
-                  <span className="text-[#102a43]">
-                    Total Scheduled Programme Fee:
-                  </span>
+                  <span className="text-[#102a43]">Total Programme Fee (USD):</span>
                   <span className="text-lg text-[#ea580c] tabular-nums">
-                    ${plan.total}
+                    {usd(isUpfront ? plan.upfront : plan.total)}
+                    {isUpfront && (
+                      <span className="ml-2 text-xs font-normal text-slate-400 line-through">
+                        {usd(plan.total)}
+                      </span>
+                    )}
                   </span>
                 </div>
               </div>
 
-              {/* Terms Checkbox */}
+              {/* Terms */}
               <div>
                 <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-600 leading-snug">
                   <input
@@ -449,11 +405,12 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                     className="mt-0.5 rounded text-[#ea580c] focus:ring-[#ea580c]"
                   />
                   <span>
-                    I understand that this programme focuses on practical skill
-                    building and portfolio development. I acknowledge the{" "}
-                    {plan.months}-month commitment of ${plan.monthly}/month
-                    (total ${plan.total}) and acknowledge that employment or
-                    startup success is not guaranteed.
+                    I understand that this programme focuses on practical skill building and portfolio
+                    development. I acknowledge the{" "}
+                    {isUpfront
+                      ? `one-off payment of ${usd(plan.upfront)} for the ${plan.months}-month programme`
+                      : `${plan.months}-month commitment of ${usd(plan.monthly)}/month (total ${usd(plan.total)})`}
+                    , charged in US dollars, and that employment or startup success is not guaranteed.
                   </span>
                 </label>
                 {errors.terms && (
@@ -470,18 +427,14 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                   {submitError}
                 </p>
               )}
-              {/* Actions */}
+
               <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full sm:flex-1 py-3 px-6 text-sm font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full sm:flex-1 py-3 px-6 text-sm font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                 >
-                  <span>
-                    {isSubmitting
-                      ? "Submitting..."
-                      : "Submit Application Review"}
-                  </span>
+                  <span>{isSubmitting ? "Submitting..." : "Submit Application Review"}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -495,28 +448,22 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
 
               <div className="space-y-2">
                 <h3 className="text-2xl font-bold text-[#102a43]">
-                  {alreadyApplied
-                    ? "We already have your application"
-                    : "Application Received for Review"}
+                  {alreadyApplied ? "We already have your application" : "Application Received for Review"}
                 </h3>
                 <p className="text-sm text-slate-600 max-w-md mx-auto">
                   {alreadyApplied ? (
                     <>
                       Your earlier application for the{" "}
-                      <strong className="text-slate-900">{plan.name}</strong> is
-                      still waiting for payment. We've also resent the payment
-                      link to{" "}
+                      <strong className="text-slate-900">{plan.name}</strong> is still waiting for
+                      payment. We've also resent the payment link to{" "}
                       <strong className="text-slate-900">{email}</strong>.
                     </>
                   ) : (
                     <>
-                      Thanks,{" "}
-                      <strong className="text-slate-900">{fullName}</strong>. To
-                      secure your place in the{" "}
-                      <strong className="text-slate-900">{plan.name}</strong>,
-                      complete your first instalment below. We've also emailed
-                      this link to{" "}
-                      <strong className="text-slate-900">{email}</strong>.
+                      Thanks, <strong className="text-slate-900">{fullName}</strong>. To secure your
+                      place in the <strong className="text-slate-900">{plan.name}</strong>, complete
+                      your {isUpfront ? "payment" : "first instalment"} below. We've also emailed this
+                      link to <strong className="text-slate-900">{email}</strong>.
                     </>
                   )}
                 </p>
@@ -526,7 +473,9 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                     href={payUrl}
                     className="inline-flex items-center justify-center gap-2 px-8 py-3.5 font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-xl shadow-sm transition-colors"
                   >
-                    Pay now with PayPal — ${plan.monthly}/mo
+                    {isUpfront
+                      ? `Pay ${usd(plan.upfront)} with PayPal`
+                      : `Pay now with PayPal — ${usd(plan.monthly)}/mo`}
                     <ArrowRight className="w-4 h-4" />
                   </a>
                 )}
@@ -540,12 +489,14 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                   <strong>Institution:</strong> {institution}
                 </p>
                 <p>
-                  <strong>Scheduled Plan:</strong> ${plan.monthly}/mo for{" "}
-                  {plan.months} months (Total: ${plan.total})
+                  <strong>Plan:</strong>{" "}
+                  {isUpfront
+                    ? `${usd(plan.upfront)} upfront for ${plan.months} months`
+                    : `${usd(plan.monthly)}/mo for ${plan.months} months (Total: ${usd(plan.total)})`}
                 </p>
                 <p>
-                  <strong>Status:</strong> Awaiting first payment · your place
-                  is confirmed once payment clears.
+                  <strong>Status:</strong> Awaiting {isUpfront ? "payment" : "first payment"} · your
+                  place is confirmed once payment clears.
                 </p>
               </div>
 
@@ -555,7 +506,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                   onClick={handleReset}
                   className="px-6 py-2.5 text-sm font-semibold text-white bg-[#102a43] hover:bg-slate-800 rounded-xl transition-colors"
                 >
-                  Close & Return to Page
+                  Close &amp; Return to Page
                 </button>
               </div>
             </div>

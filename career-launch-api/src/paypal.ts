@@ -198,3 +198,47 @@ export async function verifyWebhook(
   );
   return result.verification_status === "SUCCESS";
 }
+
+// Upfront (pay-in-full) plans: one charge, then the subscription simply expires.
+// Prices are the ONLY place to edit if Alex changes the rounding.
+export const UPFRONT_PLANS = [
+  { key: "apprenticeship", name: "Apprenticeship Programme — 12 months, paid upfront", price: "970.00", months: 12 },
+  { key: "mentorship-6mo", name: "Professional Mentorship — 6 months, paid upfront", price: "945.60", months: 6 },
+  { key: "mentorship-3mo", name: "Professional Mentorship — 3 months, paid upfront", price: "592.80", months: 3 },
+];
+
+export async function createUpfrontPlans(
+  base: string,
+  token: string,
+  productId: string,
+  currency: string,
+) {
+  const result: Record<string, string> = {};
+  for (const p of UPFRONT_PLANS) {
+    const plan = await paypalFetch(base, token, "/v1/billing/plans", {
+      method: "POST",
+      body: JSON.stringify({
+        product_id: productId,
+        name: p.name,
+        status: "ACTIVE",
+        billing_cycles: [
+          {
+            frequency: { interval_unit: "MONTH", interval_count: p.months },
+            tenure_type: "REGULAR",
+            sequence: 1,
+            total_cycles: 1, // charged once, covers the whole programme
+            pricing_scheme: {
+              fixed_price: { value: p.price, currency_code: currency },
+            },
+          },
+        ],
+        payment_preferences: {
+          auto_bill_outstanding: true,
+          payment_failure_threshold: 1,
+        },
+      }),
+    });
+    result[p.key] = plan.id;
+  }
+  return result;
+}

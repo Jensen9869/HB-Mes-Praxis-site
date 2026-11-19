@@ -16,12 +16,22 @@ import { paypalToken, createSubscription, verifyWebhook } from "./paypal";
 import { portal } from "./portal";
 import { admin } from "./admin";
 
-function planIdFor(env: Env, programme: string) {
-  return {
-    apprenticeship: env.PAYPAL_PLAN_APPRENTICESHIP,
-    "mentorship-6mo": env.PAYPAL_PLAN_MENTORSHIP_6MO,
-    "mentorship-3mo": env.PAYPAL_PLAN_MENTORSHIP_3MO,
-  }[programme];
+type Billing = "monthly" | "upfront";
+
+function planIdFor(env: Env, programme: string, billing: Billing) {
+  const plans: Record<Billing, Record<string, string | undefined>> = {
+    monthly: {
+      apprenticeship: env.PAYPAL_PLAN_APPRENTICESHIP,
+      "mentorship-6mo": env.PAYPAL_PLAN_MENTORSHIP_6MO,
+      "mentorship-3mo": env.PAYPAL_PLAN_MENTORSHIP_3MO,
+    },
+    upfront: {
+      apprenticeship: env.PAYPAL_PLAN_APPRENTICESHIP_UPFRONT,
+      "mentorship-6mo": env.PAYPAL_PLAN_MENTORSHIP_6MO_UPFRONT,
+      "mentorship-3mo": env.PAYPAL_PLAN_MENTORSHIP_3MO_UPFRONT,
+    },
+  };
+  return plans[billing]?.[programme];
 }
 
 const PROGRAMME_LABELS: Record<string, string> = {
@@ -99,6 +109,7 @@ app.post("/api/enrolment", async (c) => {
     graduationYear?: number;
     programme: string;
     track?: string;
+    billing?: Billing;
   }>();
 
   if (!b.fullName || !b.email || !b.programme) {
@@ -108,6 +119,7 @@ app.post("/api/enrolment", async (c) => {
     );
   }
 
+  const billing: Billing = b.billing === "upfront" ? "upfront" : "monthly";
   const db = c.env.career_launch_db;
   const payLink = (id: string) =>
     `${APP_URL}/api/payments/paypal/start?enrolment=${id}`;
@@ -157,6 +169,10 @@ app.post("/api/enrolment", async (c) => {
 
   if (existing) {
     if (existing.status === "awaiting_payment") {
+      await db
+        .prepare("UPDATE enrolments SET billing = ? WHERE id = ?")
+        .bind(billing, existing.id)
+        .run();
       await sendApplicationEmail(existing.id, true);
       return c.json(
         {
@@ -180,9 +196,9 @@ app.post("/api/enrolment", async (c) => {
   const enrolmentId = crypto.randomUUID();
   await db
     .prepare(
-      "INSERT INTO enrolments (id, user_id, programme, track) VALUES (?,?,?,?)",
+      "INSERT INTO enrolments (id, user_id, programme, track, billing) VALUES (?,?,?,?,?)",
     )
-    .bind(enrolmentId, user.id, b.programme, b.track ?? null)
+    .bind(enrolmentId, user.id, b.programme, b.track ?? null, billing)
     .run();
 
   await sendApplicationEmail(enrolmentId);
@@ -301,13 +317,14 @@ app.get("/api/payments/paypal/start", async (c) => {
   const db = c.env.career_launch_db;
   const row = await db
     .prepare(
-      "SELECT e.id, e.programme, e.status, u.email, u.full_name FROM enrolments e JOIN users u ON u.id = e.user_id WHERE e.id = ?",
+      "SELECT e.id, e.programme, e.status, e.billing, u.email, u.full_name FROM enrolments e JOIN users u ON u.id = e.user_id WHERE e.id = ?",
     )
     .bind(enrolmentId)
     .first<{
       id: string;
       programme: string;
       status: string;
+      billing: Billing;
       email: string;
       full_name: string;
     }>();
@@ -320,7 +337,7 @@ app.get("/api/payments/paypal/start", async (c) => {
     );
   }
 
-  const planId = planIdFor(c.env, row.programme);
+  const planId = planIdFor(c.env, row.programme, row.billing);
 
   if (!planId) return c.text("No plan for this programme", 500);
 
