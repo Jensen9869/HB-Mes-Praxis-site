@@ -9,11 +9,11 @@ import {
   paymentFailedEmail,
   paymentReceiptEmail,
 } from "./email-templates";
-import { getCookie, setCookie, deleteCookie } from "hono/cookie";
-import { randomToken, createSession, readSession } from "./auth";
+import { setCookie } from "hono/cookie";
+import { randomToken, createSession } from "./auth";
 import { paypalToken, createSubscription, verifyWebhook } from "./paypal";
-
-import { portal } from "./portal";
+import { programmeLabel } from "./labels";
+import { me } from "./me";
 import { admin } from "./admin";
 
 type Billing = "monthly" | "upfront";
@@ -34,12 +34,6 @@ function planIdFor(env: Env, programme: string, billing: Billing) {
   return plans[billing]?.[programme];
 }
 
-const PROGRAMME_LABELS: Record<string, string> = {
-  apprenticeship: "Apprenticeship Programme (12 months)",
-  "mentorship-6mo": "Professional Mentorship (6 months)",
-  "mentorship-3mo": "Professional Mentorship (3 months)",
-};
-
 const findEnrollee = (db: D1Database, enrolmentId: string) =>
   db
     .prepare(
@@ -48,33 +42,40 @@ const findEnrollee = (db: D1Database, enrolmentId: string) =>
     .bind(enrolmentId)
     .first<{ email: string; full_name: string; programme: string }>();
 
+/** Record a status change made by PayPal / the system (admin changes are logged in admin.ts). */
+const logStatus = (
+  db: D1Database,
+  enrolmentId: string,
+  toStatus: string,
+  actor: string,
+  reason?: string,
+) =>
+  db
+    .prepare(
+      "INSERT INTO status_log (id, enrolment_id, from_status, to_status, reason, actor) SELECT ?, id, status, ?, ?, ? FROM enrolments WHERE id = ? AND status != ?",
+    )
+    .bind(crypto.randomUUID(), toStatus, reason ?? null, actor, enrolmentId, toStatus)
+    .run();
+
 const app = new Hono<{ Bindings: Env }>();
 
 const APP_URL = "https://api.praxis.birthdaymessaging.io";
 const SITE_URL = "https://praxis.birthdaymessaging.io";
 
-const logoPng = Uint8Array.from(atob(LOGO_PNG_BASE64), (ch) =>
-  ch.charCodeAt(0),
-);
+const logoPng = Uint8Array.from(atob(LOGO_PNG_BASE64), (ch) => ch.charCodeAt(0));
 app.get(
   "/email/logo.png",
   () =>
     new Response(logoPng, {
-      headers: {
-        "Content-Type": "image/png",
-        "Cache-Control": "public, max-age=86400",
-      },
+      headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" },
     }),
 );
 
 app.use(
   "/api/*",
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://praxis.birthdaymessaging.io",
-      "https://career-launch-platform.white-glade-ab2c.workers.dev",
-    ],
+    origin: ["http://localhost:3000", SITE_URL],
+    credentials: true, // portal/admin send the session cookie
   }),
 );
 
@@ -82,24 +83,23 @@ const rateLimited = async (c: any, next: any) => {
   const ip = c.req.header("cf-connecting-ip") ?? "unknown";
   const { success } = await c.env.FORM_LIMITER.limit({ key: ip });
   if (!success) {
-    return c.json(
-      { error: "Too many requests. Please wait a minute and try again." },
-      429,
-    );
+    return c.json({ error: "Too many requests. Please wait a minute and try again." }, 429);
   }
   await next();
 };
 
 app.use("/api/enrolment", rateLimited);
 app.use("/api/auth/magic-link", rateLimited);
+app.use("/api/admin/login", rateLimited);
 
 app.get("/api/health", (c) => c.json({ ok: true }));
-app.get("/api/payments/paypal/return", (c) =>
-  c.redirect(`${SITE_URL}/?payment=success`),
-);
-app.get("/api/payments/paypal/cancel", (c) =>
-  c.redirect(`${SITE_URL}/?payment=cancelled`),
-);
+app.get("/api/payments/paypal/return", (c) => c.redirect(`${SITE_URL}/?payment=success`));
+app.get("/api/payments/paypal/cancel", (c) => c.redirect(`${SITE_URL}/?payment=cancelled`));
+
+// Old server-rendered pages → new React pages
+app.get("/portal", (c) => c.redirect(`${SITE_URL}/portal`));
+app.get("/admin", (c) => c.redirect(`${SITE_URL}/admin`));
+app.get("/admin/login", (c) => c.redirect(`${SITE_URL}/admin`));
 
 app.post("/api/enrolment", async (c) => {
   const b = await c.req.json<{
@@ -113,16 +113,12 @@ app.post("/api/enrolment", async (c) => {
   }>();
 
   if (!b.fullName || !b.email || !b.programme) {
-    return c.json(
-      { error: "fullName, email, and programme are required" },
-      400,
-    );
+    return c.json({ error: "fullName, email, and programme are required" }, 400);
   }
 
   const billing: Billing = b.billing === "upfront" ? "upfront" : "monthly";
   const db = c.env.career_launch_db;
-  const payLink = (id: string) =>
-    `${APP_URL}/api/payments/paypal/start?enrolment=${id}`;
+  const payLink = (id: string) => `${APP_URL}/api/payments/paypal/start?enrolment=${id}`;
 
   const sendApplicationEmail = async (enrolmentId: string, resend = false) => {
     await sendEmail(c.env, {
@@ -132,31 +128,21 @@ app.post("/api/enrolment", async (c) => {
         : "We received your application — Career Launch Platform",
       html: applicationEmail({
         fullName: b.fullName,
-        programme: PROGRAMME_LABELS[b.programme] ?? b.programme,
+        programme: programmeLabel(b.programme),
         payLink: payLink(enrolmentId),
         resend,
+        upfront: billing === "upfront",
       }),
     }).catch((err) => console.error("application email failed", err));
   };
 
-  let user = await db
-    .prepare("SELECT id FROM users WHERE email= ?")
-    .bind(b.email)
-    .first<{ id: string }>();
+  let user = await db.prepare("SELECT id FROM users WHERE email= ?").bind(b.email).first<{ id: string }>();
 
   if (!user) {
     user = { id: crypto.randomUUID() };
     await db
-      .prepare(
-        "INSERT INTO users (id, email, full_name, institution, graduation_year) VALUES (?, ?, ?, ?, ?)",
-      )
-      .bind(
-        user.id,
-        b.email,
-        b.fullName,
-        b.institution ?? null,
-        b.graduationYear ?? null,
-      )
+      .prepare("INSERT INTO users (id, email, full_name, institution, graduation_year) VALUES (?, ?, ?, ?, ?)")
+      .bind(user.id, b.email, b.fullName, b.institution ?? null, b.graduationYear ?? null)
       .run();
   }
 
@@ -169,35 +155,19 @@ app.post("/api/enrolment", async (c) => {
 
   if (existing) {
     if (existing.status === "awaiting_payment") {
-      await db
-        .prepare("UPDATE enrolments SET billing = ? WHERE id = ?")
-        .bind(billing, existing.id)
-        .run();
+      await db.prepare("UPDATE enrolments SET billing = ? WHERE id = ?").bind(billing, existing.id).run();
       await sendApplicationEmail(existing.id, true);
-      return c.json(
-        {
-          enrolmentId: existing.id,
-          existing: true,
-          payUrl: payLink(existing.id),
-        },
-        200,
-      );
+      return c.json({ enrolmentId: existing.id, existing: true, payUrl: payLink(existing.id) }, 200);
     }
-
     return c.json(
-      {
-        error:
-          "You are already enrolled in this programme. Sign in to view your enrolment.",
-      },
+      { error: "You are already enrolled in this programme. Sign in to view your enrolment." },
       409,
     );
   }
 
   const enrolmentId = crypto.randomUUID();
   await db
-    .prepare(
-      "INSERT INTO enrolments (id, user_id, programme, track, billing) VALUES (?,?,?,?,?)",
-    )
+    .prepare("INSERT INTO enrolments (id, user_id, programme, track, billing) VALUES (?,?,?,?,?)")
     .bind(enrolmentId, user.id, b.programme, b.track ?? null, billing)
     .run();
 
@@ -207,9 +177,7 @@ app.post("/api/enrolment", async (c) => {
 
 app.post("/api/auth/magic-link", async (c) => {
   const { email } = await c.req.json<{ email: string }>();
-  if (!email) {
-    return c.json({ error: "email required" }, 400);
-  }
+  if (!email) return c.json({ error: "email required" }, 400);
 
   const db = c.env.career_launch_db;
   const user = await db
@@ -221,9 +189,7 @@ app.post("/api/auth/magic-link", async (c) => {
     const token = randomToken();
     const expires = new Date(Date.now() + 15 * 60 * 1000).toISOString();
     await db
-      .prepare(
-        "INSERT INTO login_tokens (token, user_id, expires_at) VALUES (?, ?, ?)",
-      )
+      .prepare("INSERT INTO login_tokens (token, user_id, expires_at) VALUES (?, ?, ?)")
       .bind(token, user.id, expires)
       .run();
 
@@ -241,33 +207,22 @@ app.post("/api/auth/magic-link", async (c) => {
   return c.json({ ok: true });
 });
 
-app.route("/portal", portal);
-app.route("/admin", admin);
-
-// user click link
+// user clicks link in email
 app.get("/api/auth/verify", async (c) => {
   const token = c.req.query("token");
   if (!token) return c.text("Missing token", 400);
 
   const db = c.env.career_launch_db;
   const row = await db
-    .prepare(
-      "SELECT user_id, expires_at, used FROM login_tokens WHERE token = ?",
-    )
+    .prepare("SELECT user_id, expires_at, used FROM login_tokens WHERE token = ?")
     .bind(token)
     .first<{ user_id: string; expires_at: string; used: number }>();
 
   if (!row || row.used || new Date(row.expires_at) < new Date()) {
-    return c.text(
-      "This link is invalid or has expired. Please request a new one.",
-      400,
-    );
+    return c.redirect(`${SITE_URL}/portal?error=expired`);
   }
 
-  await db
-    .prepare("UPDATE login_tokens SET used = 1 WHERE token = ?")
-    .bind(token)
-    .run();
+  await db.prepare("UPDATE login_tokens SET used = 1 WHERE token = ?").bind(token).run();
 
   const session = await createSession(c.env.SESSION_SECRET, row.user_id);
   setCookie(c, "session", session, {
@@ -278,41 +233,15 @@ app.get("/api/auth/verify", async (c) => {
     maxAge: 60 * 60 * 24 * 7,
   });
 
-  // change when panel done
-  return c.redirect("/portal");
+  return c.redirect(`${SITE_URL}/portal`);
 });
 
-// use cookie get data
-app.get("/api/me", async (c) => {
-  const userId = await readSession(
-    c.env.SESSION_SECRET,
-    getCookie(c, "session"),
-  );
-  if (!userId) return c.json({ error: "not signed in" }, 401);
-
-  const db = c.env.career_launch_db;
-  const user = await db
-    .prepare(
-      "SELECT id, email, full_name, institution, graduation_year FROM users WHERE id = ?",
-    )
-    .bind(userId)
-    .first();
-
-  const enrolments = await db
-    .prepare(
-      "SELECT id, programme, track, status, created_at FROM enrolments WHERE user_id = ? ORDER BY created_at DESC",
-    )
-    .bind(userId)
-    .all();
-
-  return c.json({ user, enrolments: enrolments.results });
-});
+app.route("/api/me", me);
+app.route("/api/admin", admin);
 
 app.get("/api/payments/paypal/start", async (c) => {
   const enrolmentId = c.req.query("enrolment");
-  if (!enrolmentId) {
-    return c.text("Missing enrolment", 400);
-  }
+  if (!enrolmentId) return c.text("Missing enrolment", 400);
 
   const db = c.env.career_launch_db;
   const row = await db
@@ -320,49 +249,29 @@ app.get("/api/payments/paypal/start", async (c) => {
       "SELECT e.id, e.programme, e.status, e.billing, u.email, u.full_name FROM enrolments e JOIN users u ON u.id = e.user_id WHERE e.id = ?",
     )
     .bind(enrolmentId)
-    .first<{
-      id: string;
-      programme: string;
-      status: string;
-      billing: Billing;
-      email: string;
-      full_name: string;
-    }>();
+    .first<{ id: string; programme: string; status: string; billing: Billing; email: string; full_name: string }>();
 
   if (!row) return c.text("Application not found", 404);
 
   if (row.status !== "awaiting_payment") {
-    return c.html(
-      `<h1>Nothing to pay</h1><p>This application is already <strong>${row.status}</strong>.</p>`,
-    );
+    return c.redirect(`${SITE_URL}/portal`);
   }
 
   const planId = planIdFor(c.env, row.programme, row.billing);
-
   if (!planId) return c.text("No plan for this programme", 500);
 
-  const token = await paypalToken(
-    c.env.PAYPAL_BASE,
-    c.env.PAYPAL_CLIENT_ID,
-    c.env.PAYPAL_CLIENT_SECRET,
-  );
-  const { subscriptionId, approveUrl } = await createSubscription(
-    c.env.PAYPAL_BASE,
-    token,
-    {
-      planId,
-      enrolmentId: row.id,
-      fullName: row.full_name,
-      email: row.email,
-      returnUrl: `${APP_URL}/api/payments/paypal/return?enrolment=${row.id}`,
-      cancelUrl: `${APP_URL}/api/payments/paypal/cancel?enrolment=${row.id}`,
-    },
-  );
+  const token = await paypalToken(c.env.PAYPAL_BASE, c.env.PAYPAL_CLIENT_ID, c.env.PAYPAL_CLIENT_SECRET);
+  const { subscriptionId, approveUrl } = await createSubscription(c.env.PAYPAL_BASE, token, {
+    planId,
+    enrolmentId: row.id,
+    fullName: row.full_name,
+    email: row.email,
+    returnUrl: `${APP_URL}/api/payments/paypal/return?enrolment=${row.id}`,
+    cancelUrl: `${APP_URL}/api/payments/paypal/cancel?enrolment=${row.id}`,
+  });
 
   await db
-    .prepare(
-      "UPDATE enrolments SET provider = 'paypal', provider_subscription_id= ? WHERE id = ?",
-    )
+    .prepare("UPDATE enrolments SET provider = 'paypal', provider_subscription_id= ? WHERE id = ?")
     .bind(subscriptionId, row.id)
     .run();
 
@@ -371,30 +280,15 @@ app.get("/api/payments/paypal/start", async (c) => {
 
 app.post("/api/webhooks/paypal", async (c) => {
   const rawBody = await c.req.text();
-  const token = await paypalToken(
-    c.env.PAYPAL_BASE,
-    c.env.PAYPAL_CLIENT_ID,
-    c.env.PAYPAL_CLIENT_SECRET,
-  );
+  const token = await paypalToken(c.env.PAYPAL_BASE, c.env.PAYPAL_CLIENT_ID, c.env.PAYPAL_CLIENT_SECRET);
 
-  const ok = await verifyWebhook(
-    c.env.PAYPAL_BASE,
-    token,
-    c.env.PAYPAL_WEBHOOK_ID,
-    c.req.raw.headers,
-    rawBody,
-  );
+  const ok = await verifyWebhook(c.env.PAYPAL_BASE, token, c.env.PAYPAL_WEBHOOK_ID, c.req.raw.headers, rawBody);
   if (!ok) {
     console.error("paypal webhook: bad signature");
     return c.text("bad signature", 400);
   }
 
-  const event = JSON.parse(rawBody) as {
-    id: string;
-    event_type: string;
-    resource: Record<string, any>;
-  };
-
+  const event = JSON.parse(rawBody) as { id: string; event_type: string; resource: Record<string, any> };
   const db = c.env.career_launch_db;
   const r = event.resource;
 
@@ -403,6 +297,7 @@ app.post("/api/webhooks/paypal", async (c) => {
   switch (event.event_type) {
     case "BILLING.SUBSCRIPTION.ACTIVATED": {
       const enrolmentId = r.custom_id as string;
+      await logStatus(db, enrolmentId, "active", "paypal", "Subscription activated");
       await db
         .prepare(
           "UPDATE enrolments SET status = 'active', provider_subscription_id = ? WHERE id = ? AND status = 'awaiting_payment' ",
@@ -411,29 +306,24 @@ app.post("/api/webhooks/paypal", async (c) => {
         .run();
 
       const row = await findEnrollee(db, enrolmentId);
-
       if (row) {
         await sendEmail(c.env, {
           to: row.email,
           subject: "Welcome to Career Launch — your place is active",
-          html: welcomeEmail({
-            fullName: row.full_name,
-            programme: PROGRAMME_LABELS[row.programme] ?? row.programme,
-          }),
+          html: welcomeEmail({ fullName: row.full_name, programme: programmeLabel(row.programme) }),
         }).catch((e) => console.error("activation email failed", e));
       }
       break;
     }
 
     case "PAYMENT.SALE.COMPLETED": {
-      // 每月扣款成功。用 sale id 当主键，PayPal 重发同一事件也不会记两次
+      // Monthly charge succeeded. Sale id is the primary key, so PayPal re-deliveries are ignored.
       const subId = r.billing_agreement_id as string | undefined;
       if (!subId) break;
       const enr = await db
         .prepare("SELECT id FROM enrolments WHERE provider_subscription_id = ?")
         .bind(subId)
         .first<{ id: string }>();
-
       if (!enr) break;
 
       const amount = Math.round(parseFloat(r.amount.total) * 100);
@@ -441,17 +331,9 @@ app.post("/api/webhooks/paypal", async (c) => {
         .prepare(
           "INSERT OR IGNORE INTO payments (id, enrolment_id, provider_invoice_id, amount, currency, status, paid_at) VALUES (?,?,?,?,?,?,?)",
         )
-        .bind(
-          r.id,
-          enr.id,
-          r.id,
-          amount,
-          r.amount.currency,
-          "paid",
-          r.create_time,
-        )
+        .bind(r.id, enr.id, r.id, amount, r.amount.currency, "paid", r.create_time)
         .run();
-      if (!inserted.meta.changes) break; // PayPal re-delivered this sale: already receipted
+      if (!inserted.meta.changes) break;
 
       const row = await findEnrollee(db, enr.id);
       if (row) {
@@ -460,16 +342,9 @@ app.post("/api/webhooks/paypal", async (c) => {
           subject: "Payment received — Career Launch Platform",
           html: paymentReceiptEmail({
             fullName: row.full_name,
-            programme: PROGRAMME_LABELS[row.programme] ?? row.programme,
-            amount: new Intl.NumberFormat("en", {
-              style: "currency",
-              currency: r.amount.currency,
-            }).format(amount / 100),
-            paidOn: new Date(r.create_time).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            }),
+            programme: programmeLabel(row.programme),
+            amount: new Intl.NumberFormat("en", { style: "currency", currency: r.amount.currency }).format(amount / 100),
+            paidOn: new Date(r.create_time).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
           }),
         }).catch((e) => console.error("receipt email failed", e));
       }
@@ -477,20 +352,15 @@ app.post("/api/webhooks/paypal", async (c) => {
     }
 
     case "BILLING.SUBSCRIPTION.PAYMENT.FAILED": {
-      await db
-        .prepare(
-          "UPDATE enrolments SET status = 'payment_failed' WHERE provider_subscription_id = ? AND status= 'active'",
-        )
+      const enr = await db
+        .prepare("SELECT id FROM enrolments WHERE provider_subscription_id = ? AND status = 'active'")
         .bind(r.id)
-        .run();
+        .first<{ id: string }>();
+      if (!enr) break;
+      await logStatus(db, enr.id, "payment_failed", "paypal", "Instalment failed");
+      await db.prepare("UPDATE enrolments SET status = 'payment_failed' WHERE id = ?").bind(enr.id).run();
 
-      const row = await db
-        .prepare(
-          "SELECT u.email, u.full_name FROM enrolments e JOIN users u ON u.id = e.user_id WHERE e.provider_subscription_id = ?",
-        )
-        .bind(r.id)
-        .first<{ email: string; full_name: string }>();
-
+      const row = await findEnrollee(db, enr.id);
       if (row) {
         await sendEmail(c.env, {
           to: row.email,
@@ -503,12 +373,13 @@ app.post("/api/webhooks/paypal", async (c) => {
 
     case "BILLING.SUBSCRIPTION.CANCELLED":
     case "BILLING.SUBSCRIPTION.SUSPENDED": {
-      await db
-        .prepare(
-          "UPDATE enrolments SET status = 'cancelled' WHERE provider_subscription_id = ? AND status IN ('active', 'payment_failed')",
-        )
+      const enr = await db
+        .prepare("SELECT id FROM enrolments WHERE provider_subscription_id = ? AND status IN ('active', 'payment_failed')")
         .bind(r.id)
-        .run();
+        .first<{ id: string }>();
+      if (!enr) break;
+      await logStatus(db, enr.id, "cancelled", "paypal", event.event_type);
+      await db.prepare("UPDATE enrolments SET status = 'cancelled' WHERE id = ?").bind(enr.id).run();
       break;
     }
   }

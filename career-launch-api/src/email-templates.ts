@@ -1,7 +1,7 @@
 // Branded email layout. Tables + inline styles for email-client compatibility.
 // Colours mirror career-launch-platform/src/index.css.
 const BRAND = "Career Launch Platform";
-const SUPPORT = "support@birthdaymessaging.io";
+const SUPPORT = "support@careers.birthdaymessaging.io"; // ← confirm with Alex (hr@birthdaymessaging.io?)
 export const LOGO_URL = "https://api.praxis.birthdaymessaging.io/email/logo.png";
 
 const PRIMARY = "#ea580c";
@@ -11,7 +11,7 @@ const FONT =
 const TABLE = 'role="presentation" cellpadding="0" cellspacing="0" border="0"';
 const FOOTER_STYLE = `margin:0 0 6px;font-family:${FONT};font-size:13px;line-height:20px;color:#64748b;`;
 
-const esc = (s: string) =>
+export const esc = (s: string) =>
   s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
 
 const p = (html: string) =>
@@ -61,6 +61,7 @@ export const applicationEmail = (a: {
   programme: string;
   payLink: string;
   resend: boolean;
+  upfront?: boolean;
 }) =>
   layout(
     a.resend ? "Your payment link" : "We received your application",
@@ -69,7 +70,11 @@ export const applicationEmail = (a: {
     p(
       `${a.resend ? "Here is your payment link again for" : "Thanks for applying to"} the ${strong(a.programme)}.`,
     ),
-    p("To secure your place, complete your first instalment here:"),
+    p(
+      a.upfront
+        ? "To secure your place, complete your payment here:"
+        : "To secure your place, complete your first instalment here:",
+    ),
     button(a.payLink, "Pay now with PayPal"),
     p(`— ${BRAND}`),
   );
@@ -84,10 +89,7 @@ export const magicLinkEmail = (a: { fullName: string; link: string }) =>
     p("If you did not request this, you can ignore this email."),
   );
 
-export const welcomeEmail = (a: {
-  fullName: string;
-  programme: string;
-}) =>
+export const welcomeEmail = (a: { fullName: string; programme: string }) =>
   layout(
     "Your place is active",
     `You received this because you enrolled in the ${BRAND}.`,
@@ -121,4 +123,72 @@ export const paymentReceiptEmail = (a: {
       `Thank you. We received your payment of ${strong(a.amount)} for the ${strong(a.programme)} on ${esc(a.paidOn)}.`,
     ),
     p("No action is needed. Keep this email as your receipt."),
+  );
+
+/** Sent when an admin changes an enrolment status. */
+export const statusEmail = (a: {
+  fullName: string;
+  programme: string;
+  status: string;
+  message?: string;
+}) => {
+  const copy: Record<string, { pre: string; body: string }> = {
+    approved: {
+      pre: "You're in",
+      body: `Your application for the ${strong(a.programme)} has been approved. We will be in touch shortly with your onboarding details.`,
+    },
+    rejected: {
+      pre: "Update on your application",
+      body: `Unfortunately we are unable to offer you a place in the ${strong(a.programme)} at this time.`,
+    },
+    cancelled: {
+      pre: "Your enrolment has been cancelled",
+      body: `Your enrolment in the ${strong(a.programme)} has been cancelled and no further instalments will be charged.`,
+    },
+    completed: {
+      pre: "Congratulations",
+      body: `You have completed the ${strong(a.programme)}. Well done — we hope it has set you up for your next step.`,
+    },
+  };
+  const c = copy[a.status] ?? {
+    pre: "Update on your enrolment",
+    body: `The status of your enrolment in the ${strong(a.programme)} has been updated.`,
+  };
+  return layout(
+    c.pre,
+    `You received this because you have an enrolment with the ${BRAND}.`,
+    p(`Hi ${esc(a.fullName)},`),
+    p(c.body),
+    ...(a.message ? [p(esc(a.message).replace(/\n/g, "<br>"))] : []),
+  );
+};
+
+/** Free-form message written by an admin in the portal. */
+export const customEmail = (a: { fullName: string; message: string }) =>
+  layout(
+    "A message from the Career Launch team",
+    `You received this because you have an enrolment with the ${BRAND}.`,
+    p(`Hi ${esc(a.fullName)},`),
+    p(esc(a.message).replace(/\n/g, "<br>")),
+    p(`— ${BRAND} team`),
+  );
+
+/** Sent to the apprentice when a mentor is assigned. */
+export const mentorAssignedEmail = (a: { fullName: string; mentorName: string; mentorEmail: string; programme: string }) =>
+  layout(
+    "Meet your mentor",
+    `You received this because you are enrolled in the ${BRAND}.`,
+    p(`Hi ${esc(a.fullName)},`),
+    p(`Good news — ${strong(a.mentorName)} will be your mentor for the ${strong(a.programme)}.`),
+    p(`You can reach them at <a href="mailto:${esc(a.mentorEmail)}" style="color:${PRIMARY};">${esc(a.mentorEmail)}</a>. They will be in touch to arrange your first session.`),
+  );
+
+/** Sent to the mentor when an apprentice is assigned to them. */
+export const apprenticeAssignedEmail = (a: { mentorName: string; apprenticeName: string; apprenticeEmail: string; track: string }) =>
+  layout(
+    "A new apprentice has been assigned to you",
+    `You received this because you are a mentor on the ${BRAND}.`,
+    p(`Hi ${esc(a.mentorName)},`),
+    p(`${strong(a.apprenticeName)} (${esc(a.track)}) has been assigned to you as an apprentice.`),
+    p(`Their email is <a href="mailto:${esc(a.apprenticeEmail)}" style="color:${PRIMARY};">${esc(a.apprenticeEmail)}</a>. Please reach out within the next few days to arrange your first session.`),
   );
