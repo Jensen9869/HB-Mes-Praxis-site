@@ -11,6 +11,9 @@
 			"remote": true
 		}
 	],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	// "compatibility_flags": [
 	//   "nodejs_compat"
 	// ],
@@ -32,7 +35,11 @@
 		"PAYPAL_PLAN_MENTORSHIP_3MO": "P-0PK49607GC382161XNL6TR2Y",
 		"PAYPAL_PLAN_APPRENTICESHIP_UPFRONT": "P-1U107490A7047903UNL7OE3A",
 		"PAYPAL_PLAN_MENTORSHIP_6MO_UPFRONT": "P-8GL37147C13413200NL7OE3I",
-		"PAYPAL_PLAN_MENTORSHIP_3MO_UPFRONT": "P-3SK044269P782835DNL7OE3I"
+		"PAYPAL_PLAN_MENTORSHIP_3MO_UPFRONT": "P-3SK044269P782835DNL7OE3I",
+		"MAIL_PROVIDER": "smtp",
+		"SMTP_HOST": "mx.kerjamail.co",
+		"SMTP_PORT": "465",
+		"MAIL_FROM": "hr@birthdaymessaging.io"
 	},
 	// "kv_namespaces": [
 	//   {

@@ -1,7 +1,7 @@
 // Branded email layout. Tables + inline styles for email-client compatibility.
 // Colours mirror career-launch-platform/src/index.css.
 const BRAND = "Career Launch Platform";
-const SUPPORT = "support@careers.birthdaymessaging.io";
+const SUPPORT = "support@birthdaymessaging.io";
 export const LOGO_URL = "https://api.praxis.birthdaymessaging.io/email/logo.png";
 
 const PRIMARY = "#ea580c";

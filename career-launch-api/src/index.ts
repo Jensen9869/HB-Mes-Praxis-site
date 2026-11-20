@@ -125,7 +125,7 @@ app.post("/api/enrolment", async (c) => {
     `${APP_URL}/api/payments/paypal/start?enrolment=${id}`;
 
   const sendApplicationEmail = async (enrolmentId: string, resend = false) => {
-    await sendEmail(c.env.POSTAL_API_KEY, {
+    await sendEmail(c.env, {
       to: b.email,
       subject: resend
         ? "Your payment link — Career Launch Platform"
@@ -229,7 +229,7 @@ app.post("/api/auth/magic-link", async (c) => {
 
     const link = `${APP_URL}/api/auth/verify?token=${token}`;
     try {
-      await sendEmail(c.env.POSTAL_API_KEY, {
+      await sendEmail(c.env, {
         to: email,
         subject: "Your sign-in link — Career Launch Platform",
         html: magicLinkEmail({ fullName: user.full_name, link }),
@@ -413,7 +413,7 @@ app.post("/api/webhooks/paypal", async (c) => {
       const row = await findEnrollee(db, enrolmentId);
 
       if (row) {
-        await sendEmail(c.env.POSTAL_API_KEY, {
+        await sendEmail(c.env, {
           to: row.email,
           subject: "Welcome to Career Launch — your place is active",
           html: welcomeEmail({
@@ -455,7 +455,7 @@ app.post("/api/webhooks/paypal", async (c) => {
 
       const row = await findEnrollee(db, enr.id);
       if (row) {
-        await sendEmail(c.env.POSTAL_API_KEY, {
+        await sendEmail(c.env, {
           to: row.email,
           subject: "Payment received — Career Launch Platform",
           html: paymentReceiptEmail({
@@ -492,7 +492,7 @@ app.post("/api/webhooks/paypal", async (c) => {
         .first<{ email: string; full_name: string }>();
 
       if (row) {
-        await sendEmail(c.env.POSTAL_API_KEY, {
+        await sendEmail(c.env, {
           to: row.email,
           subject: "Payment failed — action needed",
           html: paymentFailedEmail({ fullName: row.full_name }),

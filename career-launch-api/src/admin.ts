@@ -185,7 +185,7 @@ admin.post("/enrolments/:id/status", async (c) => {
       html: `<p>Hi ${row.full_name},</p><p>Your enrolment has been cancelled and no further instalments will be charged.</p>`,
     },
   }[status]!;
-  await sendEmail(c.env.POSTAL_API_KEY, { to: row.email, ...msg }).catch((e) =>
+  await sendEmail(c.env, { to: row.email, ...msg }).catch((e) =>
     console.error("status email failed", e),
   );
 
