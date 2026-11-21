@@ -36,11 +36,13 @@ admin.post("/login", async (c) => {
     path: "/api/admin",
     maxAge: 60 * 60 * 8,
   });
+  deleteCookie(c, "session", { path: "/", secure: true, sameSite: "Lax" }); // drop any student session
   return c.json({ ok: true });
 });
 
 admin.post("/logout", (c) => {
-  deleteCookie(c, COOKIE, { path: "/api/admin" });
+  deleteCookie(c, COOKIE, { path: "/api/admin", secure: true, sameSite: "Lax" });
+  deleteCookie(c, "session", { path: "/", secure: true, sameSite: "Lax" });
   return c.json({ ok: true });
 });
 
@@ -130,50 +132,31 @@ admin.get("/enrolments/:id", async (c) => {
 });
 
 // ── Mentors ───────────────────────────────────────────────────────────────
+// Approved Mentorship students become mentors automatically (see status route).
+// Staff mentors are added by hand. Assignment happens here or on the apprentice page.
 admin.get("/mentors", async (c) => {
   const db = c.env.career_launch_db;
-  const [mentors, apprentices, candidates] = await Promise.all([
+  const [mentors, apprentices] = await Promise.all([
     db.prepare(
       `SELECT m.*, (SELECT COUNT(*) FROM enrolments e WHERE e.mentor_id = m.id) AS apprentice_count
        FROM mentors m ORDER BY m.active DESC, m.full_name`,
     ).all(),
+    // Every apprentice who can be assigned (paid or approved), with their current mentor if any
     db.prepare(
       `SELECT e.id, e.mentor_id, e.programme, e.track, e.status, u.full_name, u.email
-       FROM enrolments e JOIN users u ON u.id = e.user_id WHERE e.mentor_id IS NOT NULL ORDER BY u.full_name`,
-    ).all(),
-    // Mentorship students who are not mentors yet (for "Add from Mentorship students")
-    db.prepare(
-      `SELECT e.id AS enrolment_id, e.programme, e.status, u.full_name, u.email
        FROM enrolments e JOIN users u ON u.id = e.user_id
-       WHERE e.programme LIKE 'mentorship%' AND e.status IN ('active','approved')
-         AND NOT EXISTS (SELECT 1 FROM mentors m WHERE m.enrolment_id = e.id)
+       WHERE e.programme = 'apprenticeship' AND e.status IN ('active','approved')
        ORDER BY u.full_name`,
     ).all(),
   ]);
-  return c.json({ mentors: mentors.results, apprentices: apprentices.results, candidates: candidates.results });
+  return c.json({ mentors: mentors.results, apprentices: apprentices.results });
 });
 
 admin.post("/mentors", async (c) => {
-  const { fullName, email, enrolmentId } = await c.req.json<{ fullName?: string; email?: string; enrolmentId?: string }>();
-  const db = c.env.career_launch_db;
-  const id = crypto.randomUUID();
-
-  if (enrolmentId) {
-    // From a Mentorship student
-    const row = await db
-      .prepare("SELECT e.user_id, u.full_name, u.email FROM enrolments e JOIN users u ON u.id = e.user_id WHERE e.id = ? AND e.programme LIKE 'mentorship%'")
-      .bind(enrolmentId)
-      .first<{ user_id: string; full_name: string; email: string }>();
-    if (!row) return c.json({ error: "mentorship enrolment not found" }, 404);
-    await db
-      .prepare("INSERT INTO mentors (id, full_name, email, kind, enrolment_id, user_id) VALUES (?,?,?,'student',?,?)")
-      .bind(id, row.full_name, row.email, enrolmentId, row.user_id)
-      .run();
-    return c.json({ ok: true, id });
-  }
-
+  const { fullName, email } = await c.req.json<{ fullName?: string; email?: string }>();
   if (!fullName?.trim() || !email?.trim()) return c.json({ error: "name and email required" }, 400);
-  await db
+  const id = crypto.randomUUID();
+  await c.env.career_launch_db
     .prepare("INSERT INTO mentors (id, full_name, email, kind) VALUES (?,?,?,'staff')")
     .bind(id, fullName.trim(), email.trim().toLowerCase())
     .run();
@@ -285,6 +268,23 @@ admin.post("/enrolments/:id/status", async (c) => {
       .prepare("INSERT INTO status_log (id, enrolment_id, from_status, to_status, reason, actor) VALUES (?,?,?,?,?,'admin')")
       .bind(crypto.randomUUID(), id, row.status, status, reason ?? null),
   ]);
+
+  // Mentorship students: approved → become a mentor; rejected/cancelled → mentor deactivated.
+  if (row.programme.startsWith("mentorship") && (status === "rejected" || status === "cancelled")) {
+    await db.prepare("UPDATE mentors SET active = 0 WHERE enrolment_id = ?").bind(id).run();
+  }
+  if (status === "approved" && row.programme.startsWith("mentorship")) {
+    const userRow = await db.prepare("SELECT user_id FROM enrolments WHERE id = ?").bind(id).first<{ user_id: string }>();
+    if (userRow) {
+      await db
+        .prepare(
+          "INSERT INTO mentors (id, full_name, email, kind, enrolment_id, user_id) SELECT ?, ?, ?, 'student', ?, ? WHERE NOT EXISTS (SELECT 1 FROM mentors WHERE user_id = ?)",
+        )
+        .bind(crypto.randomUUID(), row.full_name, row.email, id, userRow.user_id, userRow.user_id)
+        .run();
+      await db.prepare("UPDATE mentors SET active = 1 WHERE user_id = ?").bind(userRow.user_id).run();
+    }
+  }
 
   if (notify) {
     await sendEmail(c.env, {

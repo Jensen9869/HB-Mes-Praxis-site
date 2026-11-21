@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Compass } from "lucide-react";
+import { Compass, ArrowLeft } from "lucide-react";
 import { BRAND_CONFIG } from "../config/platformConfig";
 
 /** Page frame shared by the student portal and the admin panel. */
@@ -22,7 +22,12 @@ export const PortalShell: React.FC<{
             {area}
           </span>
         </Link>
-        <div className="flex items-center gap-3 text-sm">{right}</div>
+        <div className="flex items-center gap-3 text-sm">
+          <Link to="/" className="inline-flex items-center gap-1 text-slate-300 hover:text-white whitespace-nowrap">
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" /> <span className="hidden sm:inline">Main site</span>
+          </Link>
+          {right}
+        </div>
       </div>
     </header>
 

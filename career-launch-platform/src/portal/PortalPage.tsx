@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Mail, LogOut, Pencil, Check, ExternalLink, CreditCard, BookOpen, MessageSquare, FileText, Users } from "lucide-react";
 import { api, apiUrl, ApiError } from "../lib/api";
+import { useWaitForSignIn } from "../lib/useWaitForSignIn";
 import { PortalShell, Card, Btn, Field, inputCls, Spinner, ErrorBox } from "../components/PortalShell";
 import { StatusPill } from "../components/StatusPill";
 import { programmeLabel, trackLabel, billingLabel, fmtDate, money, STATUS_HINT, type Status } from "../lib/labels";
@@ -15,6 +16,7 @@ type Me = {
   payments: { id: string; amount: number; currency: string; status: string; paid_at: string; programme: string }[];
   updates: { id: string; body: string; created_at: string; programme: string }[];
   mentoring: { id: string; programme: string; track: string | null; status: Status; full_name: string; email: string }[];
+  isMentor: boolean;
 };
 
 export default function PortalPage() {
@@ -22,17 +24,17 @@ export default function PortalPage() {
   const [me, setMe] = useState<Me | null>(null);
   const [params] = useSearchParams();
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       setMe(await api<Me>("/api/me"));
       setState("ready");
     } catch (e) {
       setState(e instanceof ApiError && e.status === 401 ? "unauth" : "error");
     }
-  };
+  }, []);
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   if (state === "loading") return <PortalShell area="Student Portal"><Spinner /></PortalShell>;
   if (state === "error")
@@ -41,7 +43,7 @@ export default function PortalPage() {
         <ErrorBox>Could not load your portal. Please refresh, or email us if it keeps happening.</ErrorBox>
       </PortalShell>
     );
-  if (state === "unauth" || !me) return <SignIn expired={params.get("error") === "expired"} />;
+  if (state === "unauth" || !me) return <SignIn expired={params.get("error") === "expired"} onSignedIn={load} />;
 
   const signOut = async () => {
     await api("/api/me/logout", { method: "POST" });
@@ -69,13 +71,13 @@ export default function PortalPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Enrolments me={me} />
-          {me.mentoring.length > 0 && <Mentoring list={me.mentoring} />}
+          {me.isMentor && <Mentoring list={me.mentoring} />}
           <Progress />
           <Payments payments={me.payments} />
         </div>
         <div className="space-y-6">
           <Profile me={me} onSaved={load} />
-          <Updates updates={me.updates} />
+          <Updates updates={me.updates} isApprentice={me.enrolments.some((e) => e.programme === "apprenticeship")} />
           <Card title="Need help?">
             <p className="text-sm text-slate-600 leading-relaxed">
               Questions about your programme, payments or anything else — email{" "}
@@ -90,11 +92,13 @@ export default function PortalPage() {
 
 /* ───────────────────────── Sign in (magic link) ───────────────────────── */
 
-function SignIn({ expired }: { expired: boolean }) {
+function SignIn({ expired, onSignedIn }: { expired: boolean; onSignedIn: () => void }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  // When the magic link is clicked (usually in another tab), this tab loads the portal by itself.
+  useWaitForSignIn(sent, onSignedIn);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,7 +123,8 @@ function SignIn({ expired }: { expired: boolean }) {
             <div className="text-center py-4 space-y-3">
               <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto"><Check className="w-6 h-6" /></div>
               <h1 className="text-lg font-bold text-[#102a43]">Check your email</h1>
-              <p className="text-sm text-slate-600">If <strong>{email}</strong> has an enrolment with us, a one-time sign-in link is on its way. It expires in 15 minutes.</p>
+              <p className="text-sm text-slate-600">If <strong>{email}</strong> has an enrolment with us, a one-time sign-in link is on its way. Click it and this page will open your portal automatically.</p>
+              <p className="text-xs text-slate-400 animate-pulse">Waiting for you to click the link…</p>
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-4">
@@ -198,19 +203,31 @@ function Enrolments({ me }: { me: Me }) {
 
 function Mentoring({ list }: { list: Me["mentoring"] }) {
   return (
-    <Card title="Your apprentices">
-      <ul className="divide-y divide-slate-100">
-        {list.map((a) => (
-          <li key={a.id} className="py-3 flex items-center justify-between gap-3 text-sm">
-            <div className="min-w-0">
-              <div className="font-semibold text-[#102a43]">{a.full_name}</div>
-              <div className="text-xs text-slate-500">{trackLabel(a.track)} · <a href={`mailto:${a.email}`} className="text-[#ea580c]">{a.email}</a></div>
-            </div>
-            <StatusPill status={a.status} />
-          </li>
-        ))}
-      </ul>
-      <p className="text-xs text-slate-500 mt-3">Please contact each apprentice to arrange your first session.</p>
+    <Card title={`Your apprentices (${list.length})`}>
+      {list.length === 0 ? (
+        <div className="flex items-start gap-3 text-sm text-slate-500">
+          <Users className="w-5 h-5 text-slate-300 shrink-0 mt-0.5" />
+          <p>No apprentices have been assigned to you yet. You'll get an email when one is.</p>
+        </div>
+      ) : (
+        <ul className="divide-y divide-slate-100">
+          {list.map((a) => (
+            <li key={a.id} className="py-3 flex flex-wrap items-center justify-between gap-3 text-sm">
+              <div className="min-w-0">
+                <div className="font-semibold text-[#102a43]">{a.full_name}</div>
+                <div className="text-xs text-slate-500">{trackLabel(a.track)} · {programmeLabel(a.programme)}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <StatusPill status={a.status} />
+                <a href={`mailto:${a.email}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#102a43] hover:bg-[#1a365d] rounded-lg">
+                  <Mail className="w-3.5 h-3.5" /> Email
+                </a>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      {list.length > 0 && <p className="text-xs text-slate-500 mt-3">Please contact each apprentice to arrange your first session.</p>}
     </Card>
   );
 }
@@ -331,13 +348,15 @@ function Profile({ me, onSaved }: { me: Me; onSaved: () => void }) {
   );
 }
 
-function Updates({ updates }: { updates: Me["updates"] }) {
+function Updates({ updates, isApprentice }: { updates: Me["updates"]; isApprentice: boolean }) {
+  // Mentorship-only students have no mentor: show the card only if there is something to show.
+  if (!isApprentice && updates.length === 0) return null;
   return (
-    <Card title="Updates from your mentor">
+    <Card title={isApprentice ? "Updates from your mentor" : "Updates from the team"}>
       {updates.length === 0 ? (
         <div className="flex items-start gap-3 text-sm text-slate-500">
           <MessageSquare className="w-5 h-5 text-slate-300 shrink-0 mt-0.5" />
-          <p>Nothing yet. Messages from the team will appear here.</p>
+          <p>Nothing yet. Messages from your mentor and the team will appear here.</p>
         </div>
       ) : (
         <ul className="space-y-4">

@@ -26,7 +26,7 @@ me.get("/", async (c) => {
     .first();
   if (!user) return c.json({ error: "not signed in" }, 401);
 
-  const [enrolments, payments, updates, mentoring] = await Promise.all([
+  const [enrolments, payments, updates, mentoring, mentorRow] = await Promise.all([
     db.prepare(
       `SELECT e.id, e.programme, e.track, e.status, e.billing, e.created_at, e.approved_at,
               m.full_name AS mentor_name, m.email AS mentor_email
@@ -49,6 +49,7 @@ me.get("/", async (c) => {
        FROM mentors m JOIN enrolments e ON e.mentor_id = m.id JOIN users u ON u.id = e.user_id
        WHERE m.user_id = ? AND m.active = 1 ORDER BY u.full_name`,
     ).bind(userId).all(),
+    db.prepare("SELECT id FROM mentors WHERE user_id = ? AND active = 1").bind(userId).first(),
   ]);
 
   return c.json({
@@ -57,6 +58,7 @@ me.get("/", async (c) => {
     payments: payments.results,
     updates: updates.results,
     mentoring: mentoring.results,
+    isMentor: Boolean(mentorRow),
   });
 });
 
@@ -75,7 +77,7 @@ me.patch("/", async (c) => {
 });
 
 me.post("/logout", (c) => {
-  deleteCookie(c, "session", { path: "/" });
+  deleteCookie(c, "session", { path: "/", secure: true, sameSite: "Lax" });
   return c.json({ ok: true });
 });
 

@@ -9,12 +9,12 @@ import {
   paymentFailedEmail,
   paymentReceiptEmail,
 } from "./email-templates";
-import { setCookie } from "hono/cookie";
 import { randomToken, createSession } from "./auth";
 import { paypalToken, createSubscription, verifyWebhook } from "./paypal";
 import { programmeLabel } from "./labels";
 import { me } from "./me";
 import { admin } from "./admin";
+import { setCookie, deleteCookie } from "hono/cookie";
 
 type Billing = "monthly" | "upfront";
 
@@ -232,7 +232,7 @@ app.get("/api/auth/verify", async (c) => {
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });
-
+    deleteCookie(c, "admin_session", { path: "/api/admin", secure: true, sameSite: "Lax" }); // drop any admin session
   return c.redirect(`${SITE_URL}/portal`);
 });
 
