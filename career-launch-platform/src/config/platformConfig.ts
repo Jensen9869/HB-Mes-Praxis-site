@@ -328,64 +328,67 @@ export const AUDIENCE_CARDS = [
 
 export const FAQS = [
   {
-    question: "Who can apply?",
+    question: "Am I a good fit to apply?",
     answer:
-      "University students, college students and recent graduates who want to develop practical and professional skills. Final eligibility requirements will be published with each programme.",
+      "We welcome motivated learners, career-switchers, recent graduates and professionals looking to level up their skills. As long as you bring curiosity, a willingness to learn and a commitment to completing hands-on work, you're encouraged to apply — no prior industry experience is required for our foundational tracks.",
   },
   {
-    question: "What is the difference between Apprenticeship and Mentorship?",
+    question:
+      "How do I know whether the Apprenticeship or Mentorship track is right for me?",
     answer:
-      "Apprenticeship is the longer-term structured pathway focused on practical development. Mentorship is a guided programme focused on feedback, direction, skill development and accountability.",
+      "The Apprenticeship is a structured, hands-on programme designed to give you real-world project experience, a defined curriculum and portfolio-ready work. Mentorship offers flexible, personalised 1-on-1 guidance tailored to your career goals, current projects or workplace challenges. If you want end-to-end training and structure, choose the Apprenticeship; if you want targeted advice and accountability, choose Mentorship.",
   },
   {
-    question: "How much does the Apprenticeship Programme cost?",
+    question: "What's the investment for the Apprenticeship Programme?",
     answer:
-      "$97 per month for 12 months ($1,164 in total), or $970 if you pay upfront — that's 10 months' fees for 12 months of programme. All prices are in US dollars.",
+      "$97 per month for 12 months ($1,164 in total), or a single upfront payment of $970 — 12 months for the price of 10. All prices are in US dollars.",
   },
   {
-    question: "How much does Mentorship cost?",
+    question: "How much does the Mentorship programme cost?",
     answer:
       "3 months at $247 per month ($741 in total) or 6 months at $197 per month ($1,182 in total). Pay upfront and save 20%: $592.80 for 3 months or $945.60 for 6 months. All prices are in US dollars.",
   },
   {
-    question: "Can I choose HR or software engineering?",
+    question:
+      "Can I specialise in a specific track, like HR or software engineering?",
     answer:
-      "Yes. You choose your track — Human Resources or Software Engineering — when you apply, or select 'Undecided' and confirm with your mentor after onboarding.",
+      "Yes. When you apply you choose your focus area — Human Resources or Software Engineering — or select 'Undecided' and confirm after onboarding. Your projects, resources and mentor pairing are tailored to the path you choose.",
   },
   {
-    question: "Will I get a job after completing the programme?",
+    question: "What do my job prospects look like once I graduate?",
     answer:
-      "The programme is designed to help you develop skills and prepare for opportunities. Employment depends on your capabilities, market conditions and employer requirements. A job is not guaranteed.",
+      "We cannot guarantee job placement, but the programmes are built to make you competitive in today's hiring market. You graduate with practical project experience, a polished portfolio, resume and interview coaching, and clearer direction on how to position your skills to employers.",
   },
   {
-    question: "Can I use the programme to prepare for a startup?",
+    question:
+      "I'm thinking about launching my own startup — will this programme help me prepare?",
     answer:
-      "Yes. Professional skills, practical projects, customer awareness and entrepreneurial thinking can help you prepare to contribute to or develop a startup.",
+      "Definitely. Many participants use the programme to build foundational skills, validate ideas and learn operational best practice — whether that's building a minimum viable product in software engineering or setting up compliant people-operations processes in HR.",
   },
   {
-    question: "Will I receive a certificate?",
+    question: "Will I earn a certificate when I finish?",
     answer:
-      "You receive a record of completion from the Career Launch Platform. This is not a university qualification or a professional accreditation.",
+      "Yes. On successfully completing all programme milestones and project requirements you receive an official Certificate of Completion from the Career Launch Platform that you can showcase on your LinkedIn profile and resume.",
   },
   {
-    question: "Are mentorship sessions unlimited?",
+    question: "How often can I meet with my mentor — are sessions unlimited?",
     answer:
-      "Session frequency, mentor availability and included services will be clearly stated in the applicable programme terms.",
+      "Mentorship includes weekly sessions along with asynchronous messaging support between calls. Live video sessions are scheduled within your plan's allocation to ensure quality time with your mentor; you can always reach out with quick questions as you work.",
   },
   {
-    question: "What is the refund or cancellation policy?",
+    question: "What happens if my plans change?",
     answer:
-      "Monthly plans can be stopped at any time and no further instalments are taken; payments already made are not refunded. Upfront payments are not refunded once the programme has started. You keep your 14-day statutory cancellation right. Full details are in our Refund and Cancellation Policy linked in the footer.",
+      "Monthly plans can be stopped at any time and no further instalments are taken; instalments already paid are not refunded. Upfront payments are not refunded once the programme has started. You keep your 14-day statutory cancellation right. Full details are in our Refund and Cancellation Policy linked in the footer.",
   },
   {
-    question: "Can international students enrol?",
+    question: "I'm outside the country — can I still join?",
     answer:
-      "Yes. The programmes are fully online and open to students anywhere PayPal is available. Fees are charged in US dollars; your bank may apply a conversion rate.",
+      "Yes. The programmes are 100% remote and open to participants worldwide. Sessions are scheduled across flexible time zones and all materials are online. Fees are charged in US dollars; your bank may apply a conversion rate. Participants are responsible for complying with any local study or work regulations.",
   },
   {
-    question: "How do I get started?",
+    question: "I'm ready to jump in! How do I get started?",
     answer:
-      "Choose your programme, review the requirements and terms, and complete the application or enrolment process.",
+      "Click 'Choose Your Path' at the top of the page, pick your programme and track, and fill in the short application form. Once submitted, you complete your first payment to reserve your place and our team reviews your application and reaches out with next steps.",
   },
 ];
 
