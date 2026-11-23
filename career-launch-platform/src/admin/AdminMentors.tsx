@@ -111,7 +111,8 @@ function MentorRow({
   m: Mentor; apprentices: Apprentice[]; open: boolean; onToggle: () => void; onToggleActive: () => void; onChanged: (msg: string) => void;
 }) {
   const mine = apprentices.filter((a) => a.mentor_id === m.id);
-  const others = apprentices.filter((a) => a.mentor_id !== m.id);
+  // Not already theirs, and not the mentor themself (same email).
+  const others = apprentices.filter((a) => a.mentor_id !== m.id && a.email.toLowerCase() !== m.email.toLowerCase());
   const [sel, setSel] = useState("");
   const [notify, setNotify] = useState(true);
   const [busy, setBusy] = useState(false);

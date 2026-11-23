@@ -22,6 +22,7 @@ import { SignInModal } from "./components/SignInModal";
 import { ContactModal } from "./components/ContactModal";
 import { PROGRAMMES_CONFIG } from "./config/platformConfig";
 import { PaymentResultModal } from "./components/PaymentResultModal";
+import { TestimonialSection } from "./components/TestimonialSection";
 
 export default function App() {
   // Modal states
@@ -112,6 +113,9 @@ export default function App() {
         {/* SECTION 4 — The problem and opportunity */}
         <ProblemOpportunitySection />
 
+        {/* Testimonials */}
+        <TestimonialSection />
+
         {/* SECTION 5 — Introduce the two pathways */}
         <PathwaysSection onSelectPlan={handleCustomPlanSelect} />
 
@@ -169,7 +173,6 @@ export default function App() {
         result={paymentResult}
         onClose={() => setPaymentResult(null)}
       />
-
     </div>
   );
 }

@@ -415,7 +415,8 @@ function MentorCard({ d, onChanged }: { d: Detail; onChanged: () => void }) {
 
   useEffect(() => {
     api<{ mentors: MentorOption[] }>("/api/admin/mentors")
-      .then((r) => setOptions(r.mentors.filter((m) => m.active)))
+      // Active mentors only, and never the apprentice themself (same email).
+      .then((r) => setOptions(r.mentors.filter((m) => m.active && m.email.toLowerCase() !== d.enrolment.email.toLowerCase())))
       .catch(() => setOptions([]));
   }, []);
 

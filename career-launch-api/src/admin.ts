@@ -192,6 +192,10 @@ admin.post("/enrolments/:id/mentor", async (c) => {
   if (mentorId) {
     mentor = await db.prepare("SELECT full_name, email FROM mentors WHERE id = ? AND active = 1").bind(mentorId).first();
     if (!mentor) return c.json({ error: "mentor not found or inactive" }, 404);
+    // A person cannot be their own mentor (same email on both sides).
+    if (mentor.email.trim().toLowerCase() === enr.email.trim().toLowerCase()) {
+      return c.json({ error: "This apprentice and mentor are the same person (same email)." }, 400);
+    }
   }
 
   await db.batch([
