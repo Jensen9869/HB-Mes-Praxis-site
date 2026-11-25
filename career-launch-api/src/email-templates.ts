@@ -40,7 +40,7 @@ function layout(preheader: string, reason: string, ...body: string[]) {
   <table ${TABLE} width="100%" style="max-width:600px;">
     <tr><td align="center" bgcolor="${NAVY}" style="padding:24px;border-radius:16px 16px 0 0;">
       <table ${TABLE}><tr>
-        <td style="padding-right:10px;"><img src="${LOGO_URL}" alt="" width="36" height="36" style="display:block;border-radius:10px;"></td>
+        <td style="padding-right:10px;"><img src="${LOGO_URL}" alt="" width="44" height="44" style="display:block;"></td>
         <td style="font-family:${FONT};font-size:20px;font-weight:800;letter-spacing:-0.02em;color:#ffffff;">${BRAND}</td>
       </tr></table>
     </td></tr>

@@ -1,8 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Compass, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { BRAND_CONFIG } from "../config/platformConfig";
 import { ThemeToggle } from "./ThemeToggle";
+import { Logo } from "./Logo";
 
 /** Page frame shared by the student portal and the admin panel. */
 export const PortalShell: React.FC<{
@@ -15,9 +16,7 @@ export const PortalShell: React.FC<{
     <header className="bg-navy text-white">
       <div className={`${wide ? "max-w-7xl" : "max-w-5xl"} mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4`}>
         <Link to="/" className="flex items-center gap-2.5 shrink-0">
-          <span className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#38bdf8] to-[#ea580c] flex items-center justify-center">
-            <Compass className="w-5 h-5" aria-hidden="true" />
-          </span>
+          <Logo className="w-9 h-9 sm:w-11 sm:h-11" />
           <span className="font-bold text-base sm:text-lg tracking-tight hidden sm:inline">{BRAND_CONFIG.name}</span>
           <span className="text-xs font-semibold tracking-wider uppercase text-[#38bdf8] bg-white/10 px-2 py-0.5 rounded-md">
             {area}

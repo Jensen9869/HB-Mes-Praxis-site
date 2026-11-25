@@ -1,5 +1,5 @@
 import React from "react";
-import { Compass } from "lucide-react";
+import { Logo } from "./Logo";
 import { BRAND_CONFIG } from "../config/platformConfig";
 
 interface FooterSectionProps {
@@ -20,9 +20,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({
           {/* Col 1 & 2: Brand wordmark & short description */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5 text-white">
-              <span className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#38bdf8] to-[#ea580c] flex items-center justify-center text-white shadow-xs">
-                <Compass className="w-4 h-4 text-white" aria-hidden="true" />
-              </span>
+              <Logo className="w-11 h-11" />
               <span className="font-bold text-lg text-white tracking-tight">
                 {BRAND_CONFIG.name}
               </span>
