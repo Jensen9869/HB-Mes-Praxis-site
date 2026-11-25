@@ -1,5 +1,6 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
+	"account_id": "d67a08ee1d28e49f2200fe8844a78e47",
 	"name": "career-launch-api",
 	"main": "src/index.ts",
 	"compatibility_date": "2026-11-08",

@@ -14,7 +14,7 @@ type Source = 'Email' | 'Message' | 'Public review';
 
 type Testimonial = {
   image: string;
-  /** Natural width of the cropped screenshot in px (stops small images being stretched). */
+  /** Widest the screenshot is shown, in px. The image files are saved at about 2x this size so the text stays sharp. */
   width: number;
   /** What the screenshot says — read out by screen readers. */
   alt: string;
@@ -35,7 +35,7 @@ type Testimonial = {
 const TESTIMONIALS: Testimonial[] = [
   {
     image: afraa,
-    width: 906,
+    width: 1130,
     alt: 'Email thanking the team for their guidance and support throughout the internship, calling it a valuable learning opportunity.',
     name: 'Afraa Siraj',
     role: 'Team Head, former intern',
@@ -43,7 +43,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     image: tanki,
-    width: 902,
+    width: 1130,
     alt: 'Email expressing sincere appreciation for a twelve-week internship, describing it as an important milestone that provided technical knowledge, industry experience and a deeper understanding of teamwork.',
     name: 'Tanki Rapulungoane',
     role: 'IT Tech Support Intern, Team Leader',
@@ -51,7 +51,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     image: tsireletso,
-    width: 892,
+    width: 1115,
     alt: 'Email thanking the team for guidance, feedback and the opportunity to learn and grow during a virtual internship, including encouragement to explore new areas and become more confident.',
     name: 'Tsireletso Thatho',
     role: 'Virtual intern, Computer Science & IT student',
@@ -59,7 +59,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     image: jennifer,
-    width: 900,
+    width: 1125,
     alt: 'Email saying thank you for the opportunity to be part of the team over the past year, working on accessibility and front-end development and mentoring contributors.',
     name: 'Jennifer',
     role: 'Accessibility & front-end contributor',
@@ -67,7 +67,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     image: arushi,
-    width: 734,
+    width: 860,
     alt: 'Email giving sincere thanks for the opportunity to learn in a professional environment and to be involved in something meaningful.',
     name: 'Arushi Singhi',
     role: '',
@@ -75,7 +75,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     image: karina,
-    width: 310,
+    width: 470,
     alt: 'Message saying she really enjoyed her time with the team, learned so much and truly appreciated it.',
     name: 'Karina De Santiago',
     role: '',
@@ -83,7 +83,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     image: bipana,
-    width: 925,
+    width: 1000,
     alt: 'Five-star review from a former intern describing the passion and dedication of the team she worked closely with.',
     name: 'Bipana Tripathi',
     role: 'Former intern',
@@ -91,7 +91,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     image: lineo,
-    width: 950,
+    width: 1000,
     alt: 'Five-star review saying the project has been a great experience to work on.',
     name: 'Lineo Mahlakeng',
     role: '',
@@ -139,7 +139,7 @@ export const TestimonialSection: React.FC = () => {
 
   return (
     <section aria-labelledby="testimonials-heading" className="py-16 sm:py-20 bg-white border-t border-slate-200/80">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center mb-8 sm:mb-10">
           <p className="text-xs sm:text-sm font-semibold tracking-wider text-[#ea580c] uppercase mb-2">
             In their own words
@@ -177,13 +177,13 @@ export const TestimonialSection: React.FC = () => {
             </div>
 
             {/* Fixed minimum height so the page below does not jump between slides. */}
-            <div className="px-5 sm:px-6 py-6 overflow-x-auto min-h-[170px] flex items-center">
+            <div className="px-5 sm:px-6 py-6 overflow-x-auto min-h-[190px] flex items-center">
               <img
                 src={t.image}
                 alt={t.alt}
                 loading="lazy"
                 className="block h-auto mx-auto"
-                style={{ width: '100%', maxWidth: t.width, minWidth: Math.min(t.width, 620) }}
+                style={{ width: '100%', maxWidth: t.width, minWidth: Math.min(t.width, 760) }}
               />
             </div>
 

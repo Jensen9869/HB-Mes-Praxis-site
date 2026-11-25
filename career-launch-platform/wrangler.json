@@ -1,5 +1,6 @@
 {
   "name": "career-launch-platform",
+  "account_id": "d67a08ee1d28e49f2200fe8844a78e47",
   "compatibility_date": "2026-11-08",
   "assets": {
     "directory": "./dist",
