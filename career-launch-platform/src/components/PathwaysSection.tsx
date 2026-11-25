@@ -28,21 +28,21 @@ const BillingToggle: React.FC<{
 }> = ({ value, onChange, accent }) => {
   const active =
     accent === 'orange'
-      ? 'bg-white text-[#102a43] shadow-sm border border-orange-300'
-      : 'bg-white text-[#102a43] shadow-sm border border-sky-300';
+      ? 'bg-surface text-ink shadow-sm border border-orange-300'
+      : 'bg-surface text-ink shadow-sm border border-sky-300';
   return (
     <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-lg text-xs font-semibold mb-4">
       <button
         type="button"
         onClick={() => onChange('monthly')}
-        className={`py-2 rounded-md transition-all cursor-pointer ${value === 'monthly' ? active : 'text-slate-600 hover:text-[#102a43]'}`}
+        className={`py-2 rounded-md transition-all cursor-pointer ${value === 'monthly' ? active : 'text-slate-600 hover:text-ink'}`}
       >
         Pay monthly
       </button>
       <button
         type="button"
         onClick={() => onChange('upfront')}
-        className={`py-2 rounded-md transition-all cursor-pointer ${value === 'upfront' ? active : 'text-slate-600 hover:text-[#102a43]'}`}
+        className={`py-2 rounded-md transition-all cursor-pointer ${value === 'upfront' ? active : 'text-slate-600 hover:text-ink'}`}
       >
         Pay upfront &amp; save
       </button>
@@ -57,7 +57,7 @@ const PriceBox: React.FC<{ plan: PlanKey; billing: Billing }> = ({ plan, billing
     return (
       <div className="bg-emerald-50 rounded-xl p-5 border border-emerald-200 mb-6">
         <div className="flex items-baseline gap-2 flex-wrap">
-          <span className="text-3xl sm:text-4xl font-extrabold text-[#102a43] tabular-nums">
+          <span className="text-3xl sm:text-4xl font-extrabold text-ink tabular-nums">
             {usd(p.upfront)}
           </span>
           <span className="text-sm font-semibold text-slate-600">one payment</span>
@@ -75,7 +75,7 @@ const PriceBox: React.FC<{ plan: PlanKey; billing: Billing }> = ({ plan, billing
   return (
     <div className="bg-slate-50 rounded-xl p-5 border border-slate-200/80 mb-6">
       <div className="flex items-baseline gap-2">
-        <span className="text-3xl sm:text-4xl font-extrabold text-[#102a43] tabular-nums">
+        <span className="text-3xl sm:text-4xl font-extrabold text-ink tabular-nums">
           {usd(p.monthly)}
         </span>
         <span className="text-sm font-semibold text-slate-600">/ month</span>
@@ -113,18 +113,18 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
       : `${verb} — ${usd(PRICING[plan].monthly)}/mo`;
 
   return (
-    <section id="programmes" className="py-16 sm:py-24 bg-[#f8fafc] scroll-mt-20">
+    <section id="programmes" className="py-16 sm:py-24 bg-soft scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Section Header */}
         <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
-          <p className="text-xs sm:text-sm font-semibold tracking-wider text-[#ea580c] uppercase mb-2">
+          <p className="text-xs sm:text-sm font-semibold tracking-wider text-accent-ink uppercase mb-2">
             Two Targeted Pathways
           </p>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#102a43] tracking-tight mb-4 text-balance">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-ink tracking-tight mb-4 text-balance">
             Choose the path that fits your next move.
           </h2>
-          <p className="text-base text-[#334155] leading-relaxed">
+          <p className="text-base text-body leading-relaxed">
             Whether you want an immersive 12-month project apprenticeship or direct mentorship to refine your goals and work, our transparently priced programmes give you structured support.
           </p>
         </div>
@@ -134,21 +134,21 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
           {/* ================= CARD A: APPRENTICESHIP ================= */}
           <div
             id="apprenticeship"
-            className="bg-white rounded-2xl border-2 border-slate-200/90 shadow-sm p-6 sm:p-8 flex flex-col justify-between hover:border-slate-300 transition-all scroll-mt-24"
+            className="bg-surface rounded-2xl border-2 border-slate-200/90 shadow-sm p-6 sm:p-8 flex flex-col justify-between hover:border-slate-300 transition-all scroll-mt-24"
           >
             <div>
               <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="text-xs font-bold tracking-wider text-[#ea580c] uppercase">
+                <span className="text-xs font-bold tracking-wider text-accent-ink uppercase">
                   {apprenticeship.label}
                 </span>
                 <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
                   12-Month Pathway
                 </span>
               </div>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-[#102a43] mb-3">
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-ink mb-3">
                 {apprenticeship.headline}
               </h3>
-              <p className="text-sm text-[#334155] leading-relaxed mb-6">
+              <p className="text-sm text-body leading-relaxed mb-6">
                 {apprenticeship.description}
               </p>
 
@@ -161,10 +161,10 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
                 </p>
                 {apprenticeship.benefits.map((benefit, idx) => (
                   <div key={idx} className="flex items-start gap-3">
-                    <span className="w-5 h-5 rounded-full bg-orange-100 text-[#ea580c] flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="w-5 h-5 rounded-full bg-orange-100 text-accent-ink flex items-center justify-center shrink-0 mt-0.5">
                       <Check className="w-3.5 h-3.5" aria-hidden="true" />
                     </span>
-                    <span className="text-sm text-[#334155] leading-snug">{benefit}</span>
+                    <span className="text-sm text-body leading-snug">{benefit}</span>
                   </div>
                 ))}
               </div>
@@ -173,7 +173,7 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
             <div className="pt-4 border-t border-slate-100">
               <button
                 onClick={() => select('apprenticeship', apprenticeship.id, apprBilling)}
-                className="w-full py-3.5 px-6 font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] active:bg-[#9a3412] rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                className="w-full py-3.5 px-6 font-semibold text-white bg-accent hover:bg-accent-hover active:bg-accent-active rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 group cursor-pointer"
               >
                 <span>{ctaLabel('apprenticeship', apprBilling, apprenticeship.ctaText)}</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
@@ -190,21 +190,21 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
           {/* ================= CARD B: MENTORSHIP ================= */}
           <div
             id="mentorship"
-            className="bg-white rounded-2xl border-2 border-sky-200/90 shadow-sm p-6 sm:p-8 flex flex-col justify-between hover:border-sky-300 transition-all relative scroll-mt-24"
+            className="bg-surface rounded-2xl border-2 border-sky-200/90 shadow-sm p-6 sm:p-8 flex flex-col justify-between hover:border-sky-300 transition-all relative scroll-mt-24"
           >
             <div>
               <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="text-xs font-bold tracking-wider text-[#0284c7] uppercase">
+                <span className="text-xs font-bold tracking-wider text-sky-ink uppercase">
                   {mentorship.label}
                 </span>
-                <span className="text-xs font-semibold text-[#0369a1] bg-sky-50 px-2.5 py-1 rounded-md border border-sky-100">
+                <span className="text-xs font-semibold text-sky-ink-strong bg-sky-50 px-2.5 py-1 rounded-md border border-sky-100">
                   Flexible 3 or 6 Months
                 </span>
               </div>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-[#102a43] mb-3">
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-ink mb-3">
                 {mentorship.headline}
               </h3>
-              <p className="text-sm text-[#334155] leading-relaxed mb-6">
+              <p className="text-sm text-body leading-relaxed mb-6">
                 {mentorship.description}
               </p>
 
@@ -218,16 +218,16 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
                     type="button"
                     onClick={() => setMentorshipTier('mentorship-6mo')}
                     className={`relative p-3 rounded-lg text-left transition-all cursor-pointer ${
-                      mentorshipTier === 'mentorship-6mo' ? 'bg-white shadow-sm border border-sky-300' : 'hover:bg-slate-200/60'
+                      mentorshipTier === 'mentorship-6mo' ? 'bg-surface shadow-sm border border-sky-300' : 'hover:bg-slate-200/60'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-xs font-bold text-[#102a43]">6 Months</span>
-                      <span className="text-[10px] font-semibold text-[#0284c7] bg-sky-50 px-1.5 py-0.5 rounded">
+                      <span className="text-xs font-bold text-ink">6 Months</span>
+                      <span className="text-[10px] font-semibold text-sky-ink bg-sky-50 px-1.5 py-0.5 rounded">
                         Lower monthly rate
                       </span>
                     </div>
-                    <div className="text-lg font-extrabold text-[#102a43] tabular-nums">
+                    <div className="text-lg font-extrabold text-ink tabular-nums">
                       {usd(six.monthly)} <span className="text-xs font-normal text-slate-500">/ mo</span>
                     </div>
                     <p className="text-[11px] text-slate-500 mt-0.5">
@@ -239,13 +239,13 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
                     type="button"
                     onClick={() => setMentorshipTier('mentorship-3mo')}
                     className={`p-3 rounded-lg text-left transition-all cursor-pointer ${
-                      mentorshipTier === 'mentorship-3mo' ? 'bg-white shadow-sm border border-sky-300' : 'hover:bg-slate-200/60'
+                      mentorshipTier === 'mentorship-3mo' ? 'bg-surface shadow-sm border border-sky-300' : 'hover:bg-slate-200/60'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-xs font-bold text-[#102a43]">3 Months</span>
+                      <span className="text-xs font-bold text-ink">3 Months</span>
                     </div>
-                    <div className="text-lg font-extrabold text-[#102a43] tabular-nums">
+                    <div className="text-lg font-extrabold text-ink tabular-nums">
                       {usd(three.monthly)} <span className="text-xs font-normal text-slate-500">/ mo</span>
                     </div>
                     <p className="text-[11px] text-slate-500 mt-0.5">
@@ -264,10 +264,10 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
                 </p>
                 {mentorship.benefits.map((benefit, idx) => (
                   <div key={idx} className="flex items-start gap-3">
-                    <span className="w-5 h-5 rounded-full bg-sky-100 text-[#0284c7] flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="w-5 h-5 rounded-full bg-sky-100 text-sky-ink flex items-center justify-center shrink-0 mt-0.5">
                       <Check className="w-3.5 h-3.5" aria-hidden="true" />
                     </span>
-                    <span className="text-sm text-[#334155] leading-snug">{benefit}</span>
+                    <span className="text-sm text-body leading-snug">{benefit}</span>
                   </div>
                 ))}
               </div>
@@ -276,7 +276,7 @@ export const PathwaysSection: React.FC<PathwaysSectionProps> = ({ onSelectPlan }
             <div className="pt-4 border-t border-slate-100">
               <button
                 onClick={() => select(mentorshipTier, mentorship.id, mentBilling)}
-                className="w-full py-3.5 px-6 font-semibold text-white bg-[#102a43] hover:bg-[#1a365d] active:bg-[#0c1f33] rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                className="w-full py-3.5 px-6 font-semibold text-white bg-navy-solid hover:bg-navy-solid-hover active:bg-navy-solid-active rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 group cursor-pointer"
               >
                 <span>
                   {ctaLabel(mentorshipTier, mentBilling, `Choose ${ment.months} Months`)}

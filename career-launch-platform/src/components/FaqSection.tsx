@@ -10,18 +10,18 @@ export const FaqSection: React.FC = () => {
   };
 
   return (
-    <section id="faq" className="py-16 sm:py-24 bg-white border-b border-slate-200/80 scroll-mt-20">
+    <section id="faq" className="py-16 sm:py-24 bg-surface border-b border-slate-200/80 scroll-mt-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center mb-12 sm:mb-16">
-          <p className="text-xs sm:text-sm font-semibold tracking-wider text-[#ea580c] uppercase mb-2">
+          <p className="text-xs sm:text-sm font-semibold tracking-wider text-accent-ink uppercase mb-2">
             Clear Answers
           </p>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#102a43] tracking-tight mb-4 text-balance">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-ink tracking-tight mb-4 text-balance">
             Frequently asked questions
           </h2>
-          <p className="text-base text-[#334155] leading-relaxed">
+          <p className="text-base text-body leading-relaxed">
             Everything you need to know about programme structures, fees, track options, and policies.
           </p>
         </div>
@@ -36,7 +36,7 @@ export const FaqSection: React.FC = () => {
             return (
               <div
                 key={index}
-                className="rounded-xl border border-slate-200 overflow-hidden transition-colors bg-[#f8fafc]/50"
+                className="rounded-xl border border-slate-200 overflow-hidden transition-colors bg-soft/50"
               >
                 <h3>
                   <button
@@ -45,12 +45,12 @@ export const FaqSection: React.FC = () => {
                     aria-expanded={isOpen}
                     aria-controls={panelId}
                     onClick={() => toggleAccordion(index)}
-                    className="w-full py-4 sm:py-5 px-5 sm:px-6 text-left flex items-center justify-between gap-4 font-semibold text-base sm:text-lg text-[#102a43] hover:text-[#ea580c] transition-colors cursor-pointer bg-white"
+                    className="w-full py-4 sm:py-5 px-5 sm:px-6 text-left flex items-center justify-between gap-4 font-semibold text-base sm:text-lg text-ink hover:text-accent-ink transition-colors cursor-pointer bg-surface"
                   >
                     <span>{faq.question}</span>
                     <span 
                       className={`w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-slate-600 transition-transform duration-200 ${
-                        isOpen ? 'rotate-180 bg-orange-50 text-[#ea580c]' : ''
+                        isOpen ? 'rotate-180 bg-orange-50 text-accent-ink' : ''
                       }`}
                     >
                       <ChevronDown className="w-4 h-4" aria-hidden="true" />
@@ -63,7 +63,7 @@ export const FaqSection: React.FC = () => {
                     id={panelId}
                     role="region"
                     aria-labelledby={headingId}
-                    className="px-5 sm:px-6 pt-1 pb-5 text-sm sm:text-base text-[#334155] leading-relaxed border-t border-slate-100 bg-white"
+                    className="px-5 sm:px-6 pt-1 pb-5 text-sm sm:text-base text-body leading-relaxed border-t border-slate-100 bg-surface"
                   >
                     <p>{faq.answer}</p>
                   </div>

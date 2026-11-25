@@ -6,18 +6,18 @@ const STEP_ICONS = [Compass, Target, Hammer, BriefcaseBusiness];
 
 export const HowItWorksSection: React.FC = () => {
   return (
-    <section id="how-it-works" className="py-16 sm:py-24 bg-white border-y border-slate-200/80 scroll-mt-20">
+    <section id="how-it-works" className="py-16 sm:py-24 bg-surface border-y border-slate-200/80 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
-          <p className="text-xs sm:text-sm font-semibold tracking-wider text-[#ea580c] uppercase mb-2">
+          <p className="text-xs sm:text-sm font-semibold tracking-wider text-accent-ink uppercase mb-2">
             The Journey
           </p>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#102a43] tracking-tight mb-4 text-balance">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-ink tracking-tight mb-4 text-balance">
             A clear path from ambition to action.
           </h2>
-          <p className="text-base text-[#334155] leading-relaxed">
+          <p className="text-base text-body leading-relaxed">
             Our step-by-step framework takes you from classroom theory to proven capability with clarity and dedicated structure.
           </p>
         </div>
@@ -31,24 +31,24 @@ export const HowItWorksSection: React.FC = () => {
             return (
               <div 
                 key={step.number}
-                className="bg-[#f8fafc] rounded-2xl p-6 sm:p-7 border border-slate-200/80 hover:border-slate-300 transition-all flex flex-col justify-between relative group"
+                className="bg-soft rounded-2xl p-6 sm:p-7 border border-slate-200/80 hover:border-slate-300 transition-all flex flex-col justify-between relative group"
               >
                 <div>
                   {/* Step Top Bar: Editorial Number & Icon */}
                   <div className="flex items-center justify-between mb-5">
-                    <span className="text-2xl font-black text-[#102a43] font-mono tabular-nums">
+                    <span className="text-2xl font-black text-ink font-mono tabular-nums">
                       {step.number}
                     </span>
-                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/80 text-[#ea580c] flex items-center justify-center shadow-2xs group-hover:bg-[#ea580c] group-hover:text-white transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-surface border border-slate-200/80 text-accent-ink flex items-center justify-center shadow-2xs group-hover:bg-accent group-hover:text-white transition-colors">
                       <IconComponent className="w-5 h-5" aria-hidden="true" />
                     </div>
                   </div>
 
                   {/* Step Title & Description */}
-                  <h3 className="text-lg font-bold text-[#102a43] mb-2">
+                  <h3 className="text-lg font-bold text-ink mb-2">
                     {step.title}
                   </h3>
-                  <p className="text-sm text-[#334155] leading-relaxed">
+                  <p className="text-sm text-body leading-relaxed">
                     {step.description}
                   </p>
                 </div>

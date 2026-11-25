@@ -20,10 +20,10 @@ export const BusinessDecisionsModal: React.FC<BusinessDecisionsModalProps> = ({
       aria-modal="true"
       aria-labelledby="business-decisions-title"
     >
-      <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200 my-8">
+      <div className="bg-surface rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200 my-8">
         
         {/* Header */}
-        <div className="bg-[#102a43] text-white px-6 py-5 flex items-center justify-between">
+        <div className="bg-navy text-white px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <AlertTriangle className="w-5 h-5 text-amber-400" />
             <div>
@@ -58,7 +58,7 @@ export const BusinessDecisionsModal: React.FC<BusinessDecisionsModalProps> = ({
                 className="p-4 rounded-xl border border-amber-200/80 bg-amber-50/40 text-slate-800 space-y-1.5"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#102a43] flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-ink flex items-center gap-1.5">
                     <span className="w-5 h-5 rounded-full bg-amber-200/80 text-amber-900 flex items-center justify-center text-[10px] font-mono">
                       {idx + 1}
                     </span>
@@ -88,7 +88,7 @@ export const BusinessDecisionsModal: React.FC<BusinessDecisionsModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 text-xs font-semibold text-white bg-[#102a43] hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+            className="px-5 py-2 text-xs font-semibold text-white bg-navy-solid hover:bg-navy-solid-hover rounded-lg transition-colors cursor-pointer"
           >
             Acknowledge & Close
           </button>

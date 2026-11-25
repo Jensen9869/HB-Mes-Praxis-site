@@ -64,8 +64,8 @@ export default function PortalPage() {
       }
     >
       <div className="mb-8">
-        <p className="text-xs font-bold tracking-wider text-[#ea580c] uppercase mb-1">Welcome back</p>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#102a43] tracking-tight">Hi {firstName}</h1>
+        <p className="text-xs font-bold tracking-wider text-accent-ink uppercase mb-1">Welcome back</p>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">Hi {firstName}</h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -81,7 +81,7 @@ export default function PortalPage() {
           <Card title="Need help?">
             <p className="text-sm text-slate-600 leading-relaxed">
               Questions about your programme, payments or anything else — email{" "}
-              <a href="mailto:support@birthdaymessaging.io" className="text-[#ea580c] font-semibold">support@birthdaymessaging.io</a>.
+              <a href="mailto:support@birthdaymessaging.io" className="text-accent-ink font-semibold">support@birthdaymessaging.io</a>.
             </p>
           </Card>
         </div>
@@ -122,14 +122,14 @@ function SignIn({ expired, onSignedIn }: { expired: boolean; onSignedIn: () => v
           {sent ? (
             <div className="text-center py-4 space-y-3">
               <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto"><Check className="w-6 h-6" /></div>
-              <h1 className="text-lg font-bold text-[#102a43]">Check your email</h1>
+              <h1 className="text-lg font-bold text-ink">Check your email</h1>
               <p className="text-sm text-slate-600">If <strong>{email}</strong> has an enrolment with us, a one-time sign-in link is on its way. Click it and this page will open your portal automatically.</p>
               <p className="text-xs text-slate-400 animate-pulse">Waiting for you to click the link…</p>
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-4">
               <div>
-                <h1 className="text-xl font-bold text-[#102a43]">Sign in to your portal</h1>
+                <h1 className="text-xl font-bold text-ink">Sign in to your portal</h1>
                 <p className="text-sm text-slate-600 mt-1">Enter the email you applied with and we'll send you a one-time sign-in link. No password needed.</p>
               </div>
               {expired && <ErrorBox>That sign-in link has expired or was already used. Request a new one below.</ErrorBox>}
@@ -155,7 +155,7 @@ function Enrolments({ me }: { me: Me }) {
   if (!me.enrolments.length)
     return (
       <Card title="My programmes">
-        <p className="text-sm text-slate-600">You have no enrolments yet. <a href="/#programmes" className="text-[#ea580c] font-semibold">Explore the programmes →</a></p>
+        <p className="text-sm text-slate-600">You have no enrolments yet. <a href="/#programmes" className="text-accent-ink font-semibold">Explore the programmes →</a></p>
       </Card>
     );
   return (
@@ -165,7 +165,7 @@ function Enrolments({ me }: { me: Me }) {
           <div key={e.id} className="rounded-xl border border-slate-200 p-4 sm:p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h3 className="font-bold text-[#102a43]">{programmeLabel(e.programme)}</h3>
+                <h3 className="font-bold text-ink">{programmeLabel(e.programme)}</h3>
                 <p className="text-xs text-slate-500 mt-0.5">
                   {trackLabel(e.track)} · {billingLabel(e.billing)} · applied {fmtDate(e.created_at)}
                 </p>
@@ -175,22 +175,22 @@ function Enrolments({ me }: { me: Me }) {
             <p className="text-sm text-slate-600 mt-3">{STATUS_HINT[e.status] ?? ""}</p>
             {e.mentor_name && (
               <div className="mt-3 flex items-center gap-2 text-sm bg-sky-50 border border-sky-100 rounded-lg px-3 py-2">
-                <Users className="w-4 h-4 text-[#0284c7] shrink-0" />
-                <span>Your mentor: <strong className="text-[#102a43]">{e.mentor_name}</strong>
-                  {e.mentor_email && <> · <a href={`mailto:${e.mentor_email}`} className="text-[#ea580c]">{e.mentor_email}</a></>}
+                <Users className="w-4 h-4 text-sky-ink shrink-0" />
+                <span>Your mentor: <strong className="text-ink">{e.mentor_name}</strong>
+                  {e.mentor_email && <> · <a href={`mailto:${e.mentor_email}`} className="text-accent-ink">{e.mentor_email}</a></>}
                 </span>
               </div>
             )}
             {e.status === "awaiting_payment" && (
               <a
                 href={apiUrl(`/api/payments/paypal/start?enrolment=${e.id}`)}
-                className="mt-3 inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-lg"
+                className="mt-3 inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-accent hover:bg-accent-hover rounded-lg"
               >
                 <CreditCard className="w-4 h-4" /> Pay now with PayPal
               </a>
             )}
             {e.status === "payment_failed" && (
-              <a href="https://www.paypal.com/myaccount/autopay/" target="_blank" rel="noopener" className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[#ea580c]">
+              <a href="https://www.paypal.com/myaccount/autopay/" target="_blank" rel="noopener" className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-ink">
                 Update payment method in PayPal <ExternalLink className="w-3.5 h-3.5" />
               </a>
             )}
@@ -214,12 +214,12 @@ function Mentoring({ list }: { list: Me["mentoring"] }) {
           {list.map((a) => (
             <li key={a.id} className="py-3 flex flex-wrap items-center justify-between gap-3 text-sm">
               <div className="min-w-0">
-                <div className="font-semibold text-[#102a43]">{a.full_name}</div>
+                <div className="font-semibold text-ink">{a.full_name}</div>
                 <div className="text-xs text-slate-500">{trackLabel(a.track)} · {programmeLabel(a.programme)}</div>
               </div>
               <div className="flex items-center gap-2">
                 <StatusPill status={a.status} />
-                <a href={`mailto:${a.email}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#102a43] hover:bg-[#1a365d] rounded-lg">
+                <a href={`mailto:${a.email}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-navy-solid hover:bg-navy-solid-hover rounded-lg">
                   <Mail className="w-3.5 h-3.5" /> Email
                 </a>
               </div>
@@ -264,9 +264,9 @@ function Payments({ payments }: { payments: Me["payments"] }) {
                 <tr key={p.id}>
                   <td className="px-5 sm:px-6 py-3 whitespace-nowrap">{fmtDate(p.paid_at)}</td>
                   <td className="px-3 py-3">{programmeLabel(p.programme)}</td>
-                  <td className="px-3 py-3 text-right font-semibold text-[#102a43] tabular-nums whitespace-nowrap">{money(p.amount, p.currency)}</td>
+                  <td className="px-3 py-3 text-right font-semibold text-ink tabular-nums whitespace-nowrap">{money(p.amount, p.currency)}</td>
                   <td className="px-5 sm:px-6 py-3 text-right">
-                    <a href={apiUrl(`/api/me/receipts/${p.id}`)} target="_blank" rel="noopener" className="inline-flex items-center gap-1 text-[#ea580c] font-semibold">
+                    <a href={apiUrl(`/api/me/receipts/${p.id}`)} target="_blank" rel="noopener" className="inline-flex items-center gap-1 text-accent-ink font-semibold">
                       <FileText className="w-3.5 h-3.5" /> View
                     </a>
                   </td>
@@ -313,7 +313,7 @@ function Profile({ me, onSaved }: { me: Me; onSaved: () => void }) {
       title="My details"
       action={
         !editing && (
-          <button onClick={() => setEditing(true)} className="text-xs font-semibold text-[#ea580c] inline-flex items-center gap-1 cursor-pointer">
+          <button onClick={() => setEditing(true)} className="text-xs font-semibold text-accent-ink inline-flex items-center gap-1 cursor-pointer">
             <Pencil className="w-3.5 h-3.5" /> Edit
           </button>
         )
@@ -337,10 +337,10 @@ function Profile({ me, onSaved }: { me: Me; onSaved: () => void }) {
         </div>
       ) : (
         <dl className="text-sm space-y-2.5">
-          <div><dt className="text-xs text-slate-500">Name</dt><dd className="font-medium text-[#102a43]">{me.user.full_name}</dd></div>
-          <div><dt className="text-xs text-slate-500">Email</dt><dd className="font-medium text-[#102a43] break-all">{me.user.email}</dd></div>
-          <div><dt className="text-xs text-slate-500">Institution</dt><dd className="font-medium text-[#102a43]">{me.user.institution || "—"}</dd></div>
-          <div><dt className="text-xs text-slate-500">Graduation year</dt><dd className="font-medium text-[#102a43]">{me.user.graduation_year ?? "—"}</dd></div>
+          <div><dt className="text-xs text-slate-500">Name</dt><dd className="font-medium text-ink">{me.user.full_name}</dd></div>
+          <div><dt className="text-xs text-slate-500">Email</dt><dd className="font-medium text-ink break-all">{me.user.email}</dd></div>
+          <div><dt className="text-xs text-slate-500">Institution</dt><dd className="font-medium text-ink">{me.user.institution || "—"}</dd></div>
+          <div><dt className="text-xs text-slate-500">Graduation year</dt><dd className="font-medium text-ink">{me.user.graduation_year ?? "—"}</dd></div>
         </dl>
       )}
       <p className="text-xs text-slate-500 mt-4">To change your email address, contact support.</p>

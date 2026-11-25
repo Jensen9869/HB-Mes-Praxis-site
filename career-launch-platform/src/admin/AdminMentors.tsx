@@ -42,12 +42,12 @@ export default function AdminMentors({ onSignOut }: { onSignOut: () => void }) {
 
   return (
     <PortalShell area="Admin" wide right={<Btn variant="ghost" size="sm" onClick={signOut}><LogOut className="w-3.5 h-3.5" /> Sign out</Btn>}>
-      {toast && <div className="fixed top-20 right-4 z-50 bg-[#102a43] text-white text-sm px-4 py-2.5 rounded-lg shadow-lg">{toast}</div>}
+      {toast && <div className="fixed top-20 right-4 z-50 bg-navy-solid text-white text-sm px-4 py-2.5 rounded-lg shadow-lg">{toast}</div>}
 
       <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
         <div>
-          <p className="text-xs font-bold tracking-wider text-[#ea580c] uppercase mb-1">Career Launch</p>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#102a43] tracking-tight">Mentors</h1>
+          <p className="text-xs font-bold tracking-wider text-accent-ink uppercase mb-1">Career Launch</p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">Mentors</h1>
         </div>
         {data && unassigned > 0 && (
           <span className="text-sm font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg">
@@ -131,20 +131,20 @@ function MentorRow({
   return (
     <li className={m.active ? "" : "opacity-60"}>
       <div className="px-5 py-3.5 flex items-center gap-3">
-        <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${m.kind === "student" ? "bg-sky-50 text-[#0284c7]" : "bg-orange-50 text-[#ea580c]"}`}>
+        <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${m.kind === "student" ? "bg-sky-50 text-sky-ink" : "bg-orange-50 text-accent-ink"}`}>
           {m.kind === "student" ? <GraduationCap className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}
         </span>
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-[#102a43] truncate">
+          <div className="font-semibold text-ink truncate">
             {m.full_name}
             {!m.active && <span className="ml-2 text-[10px] uppercase tracking-wider text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">inactive</span>}
           </div>
           <div className="text-xs text-slate-500 truncate">
             {m.email} · {m.kind === "student" ? "Mentorship student" : "Staff"}
-            {m.enrolment_id && <> · <Link to={`/admin/enrolments/${m.enrolment_id}`} className="text-[#ea580c]">view enrolment</Link></>}
+            {m.enrolment_id && <> · <Link to={`/admin/enrolments/${m.enrolment_id}`} className="text-accent-ink">view enrolment</Link></>}
           </div>
         </div>
-        <button type="button" onClick={onToggle} className="inline-flex items-center gap-1 text-sm font-semibold text-[#102a43] cursor-pointer whitespace-nowrap">
+        <button type="button" onClick={onToggle} className="inline-flex items-center gap-1 text-sm font-semibold text-ink cursor-pointer whitespace-nowrap">
           {mine.length} apprentice{mine.length === 1 ? "" : "s"}
           {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
@@ -160,7 +160,7 @@ function MentorRow({
               {mine.map((a) => (
                 <li key={a.id} className="flex items-center justify-between gap-3 text-sm">
                   <div className="min-w-0">
-                    <Link to={`/admin/enrolments/${a.id}`} className="font-medium text-[#102a43] hover:text-[#ea580c]">{a.full_name}</Link>
+                    <Link to={`/admin/enrolments/${a.id}`} className="font-medium text-ink hover:text-accent-ink">{a.full_name}</Link>
                     <span className="text-xs text-slate-500"> · {trackLabel(a.track)} · {a.email}</span>
                   </div>
                   <div className="flex items-center gap-2">

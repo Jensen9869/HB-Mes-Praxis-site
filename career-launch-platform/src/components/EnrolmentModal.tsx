@@ -134,9 +134,9 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
     const p = PRICING[key];
     const active =
       color === "orange"
-        ? "border-[#ea580c] bg-orange-50/50 ring-2 ring-[#ea580c]/20"
-        : "border-[#0284c7] bg-sky-50/50 ring-2 ring-[#0284c7]/20";
-    const label = color === "orange" ? "text-[#ea580c]" : "text-[#0284c7]";
+        ? "border-accent bg-orange-50/50 ring-2 ring-accent/20"
+        : "border-sky-ink bg-sky-50/50 ring-2 ring-sky-ink/20";
+    const label = color === "orange" ? "text-accent-ink" : "text-sky-ink";
     return (
       <button
         type="button"
@@ -154,12 +154,12 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
             {key === "apprenticeship" ? "Apprenticeship" : "Mentorship"}
           </span>
           {badge && (
-            <span className="text-[10px] bg-sky-100 text-[#0369a1] px-1 rounded">
+            <span className="text-[10px] bg-sky-100 text-sky-ink-strong px-1 rounded">
               {badge}
             </span>
           )}
         </div>
-        <div className="text-lg font-extrabold text-[#102a43] mt-0.5">
+        <div className="text-lg font-extrabold text-ink mt-0.5">
           {usd(p.monthly)}{" "}
           <span className="text-xs font-normal text-slate-500">/ mo</span>
         </div>
@@ -177,9 +177,9 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
       aria-modal="true"
       aria-labelledby="modal-title"
     >
-      <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200 my-8">
+      <div className="bg-surface rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200 my-8">
         {/* Header */}
-        <div className="bg-[#102a43] text-white px-6 py-5 flex items-center justify-between">
+        <div className="bg-navy text-white px-6 py-5 flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold tracking-wider text-[#38bdf8] uppercase">
               Application &amp; Enrolment Portal
@@ -207,7 +207,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Step 1: Programme */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#102a43] mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-ink mb-2">
                   1. Select Your Programme &amp; Duration
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -219,7 +219,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
 
               {/* Step 2: Payment plan */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#102a43] mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-ink mb-2">
                   2. Choose How You Pay
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -228,14 +228,14 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                     onClick={() => setBilling("monthly")}
                     className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                       !isUpfront
-                        ? "border-[#102a43] bg-slate-50 ring-2 ring-[#102a43]/15"
+                        ? "border-ink bg-slate-50 ring-2 ring-ink/15"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
                   >
-                    <div className="text-xs font-bold text-[#102a43]">
+                    <div className="text-xs font-bold text-ink">
                       Pay monthly
                     </div>
-                    <div className="text-lg font-extrabold text-[#102a43] mt-0.5">
+                    <div className="text-lg font-extrabold text-ink mt-0.5">
                       {usd(plan.monthly)}{" "}
                       <span className="text-xs font-normal text-slate-500">
                         / mo × {plan.months}
@@ -262,7 +262,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                         {plan.upfrontBadge}
                       </span>
                     </div>
-                    <div className="text-lg font-extrabold text-[#102a43] mt-0.5">
+                    <div className="text-lg font-extrabold text-ink mt-0.5">
                       {usd(plan.upfront)}{" "}
                       <span className="text-xs font-normal text-slate-500">
                         once
@@ -278,7 +278,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
 
               {/* Step 3: Track */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#102a43] mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-ink mb-2">
                   3. Select Desired Specialisation Track
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -295,7 +295,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                       onClick={() => setSelectedTrack(key)}
                       className={`py-2.5 px-3 rounded-lg border text-sm font-medium transition-all cursor-pointer ${
                         selectedTrack === key
-                          ? "border-[#102a43] bg-slate-900 text-white font-semibold"
+                          ? "border-navy-solid bg-navy-solid text-white font-semibold"
                           : "border-slate-200 text-slate-700 hover:bg-slate-50"
                       }`}
                     >
@@ -307,7 +307,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
 
               {/* Step 4: Details */}
               <div className="space-y-4 pt-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#102a43]">
+                <label className="block text-xs font-bold uppercase tracking-wider text-ink">
                   4. Student &amp; Applicant Information
                 </label>
 
@@ -324,7 +324,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="e.g. Alex Chen"
-                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:border-accent focus:ring-1 focus:ring-accent"
                   />
                   {errors.fullName && (
                     <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
@@ -348,7 +348,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="alex@university.edu"
-                      className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
+                      className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:border-accent focus:ring-1 focus:ring-accent"
                     />
                     {errors.email && (
                       <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
@@ -371,7 +371,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                       value={institution}
                       onChange={(e) => setInstitution(e.target.value)}
                       placeholder="e.g. University of Edinburgh"
-                      className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
+                      className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:border-accent focus:ring-1 focus:ring-accent"
                     />
                     {errors.institution && (
                       <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
@@ -393,7 +393,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                     id="modal-grad"
                     value={gradYear}
                     onChange={(e) => setGradYear(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg bg-white"
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg bg-surface"
                   >
                     {[0, 1, 2, 3].map((i) => {
                       const y = new Date().getFullYear() + i;
@@ -414,7 +414,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                   <span className="font-semibold text-slate-700">
                     Selected Pathway:
                   </span>
-                  <span className="font-bold text-[#102a43]">{plan.name}</span>
+                  <span className="font-bold text-ink">{plan.name}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-600">Payment plan:</span>
@@ -439,10 +439,10 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                   <span className="text-slate-900">{plan.months} months</span>
                 </div>
                 <div className="flex items-center justify-between text-sm pt-2 border-t border-slate-200 font-bold">
-                  <span className="text-[#102a43]">
+                  <span className="text-ink">
                     Total Programme Fee (USD):
                   </span>
-                  <span className="text-lg text-[#ea580c] tabular-nums">
+                  <span className="text-lg text-accent-ink tabular-nums">
                     {usd(isUpfront ? plan.upfront : plan.total)}
                     {isUpfront && (
                       <span className="ml-2 text-xs font-normal text-slate-400 line-through">
@@ -460,7 +460,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                     type="checkbox"
                     checked={acceptedTerms}
                     onChange={(e) => setAcceptedTerms(e.target.checked)}
-                    className="mt-0.5 rounded text-[#ea580c] focus:ring-[#ea580c]"
+                    className="mt-0.5 rounded text-accent-ink focus:ring-accent"
                   />
                   <span>
                     I understand that this programme focuses on practical skill
@@ -474,7 +474,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                       href="/legal/terms.html"
                       target="_blank"
                       rel="noopener"
-                      className="underline text-[#ea580c]"
+                      className="underline text-accent-ink"
                     >
                       Terms
                     </a>{" "}
@@ -483,7 +483,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                       href="/legal/refunds.html"
                       target="_blank"
                       rel="noopener"
-                      className="underline text-[#ea580c]"
+                      className="underline text-accent-ink"
                     >
                       Refund Policy
                     </a>
@@ -509,7 +509,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full sm:flex-1 py-3 px-6 text-sm font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                  className="w-full sm:flex-1 py-3 px-6 text-sm font-semibold text-white bg-accent hover:bg-accent-hover rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                 >
                   <span>
                     {isSubmitting
@@ -528,7 +528,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-[#102a43]">
+                <h3 className="text-2xl font-bold text-ink">
                   {alreadyApplied
                     ? "We already have your application"
                     : "Application Received for Review"}
@@ -558,7 +558,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                 {payUrl && (
                   <a
                     href={payUrl}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-3.5 font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-xl shadow-sm transition-colors"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3.5 font-semibold text-white bg-accent hover:bg-accent-hover rounded-xl shadow-sm transition-colors"
                   >
                     {isUpfront
                       ? `Pay ${usd(plan.upfront)} with PayPal`
@@ -592,7 +592,7 @@ export const EnrolmentModal: React.FC<EnrolmentModalProps> = ({
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="px-6 py-2.5 text-sm font-semibold text-white bg-[#102a43] hover:bg-slate-800 rounded-xl transition-colors"
+                  className="px-6 py-2.5 text-sm font-semibold text-white bg-navy-solid hover:bg-navy-solid-hover rounded-xl transition-colors"
                 >
                   Close &amp; Return to Page
                 </button>

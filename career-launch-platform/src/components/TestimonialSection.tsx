@@ -138,13 +138,13 @@ export const TestimonialSection: React.FC = () => {
   const t = TESTIMONIALS[index];
 
   return (
-    <section aria-labelledby="testimonials-heading" className="py-16 sm:py-20 bg-white border-t border-slate-200/80">
+    <section aria-labelledby="testimonials-heading" className="py-16 sm:py-20 bg-surface border-t border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center mb-8 sm:mb-10">
-          <p className="text-xs sm:text-sm font-semibold tracking-wider text-[#ea580c] uppercase mb-2">
+          <p className="text-xs sm:text-sm font-semibold tracking-wider text-accent-ink uppercase mb-2">
             In their own words
           </p>
-          <h2 id="testimonials-heading" className="text-2xl sm:text-3xl font-bold text-[#102a43] tracking-tight text-balance">
+          <h2 id="testimonials-heading" className="text-2xl sm:text-3xl font-bold text-ink tracking-tight text-balance">
             From people who have worked with us
           </h2>
         </div>
@@ -162,9 +162,9 @@ export const TestimonialSection: React.FC = () => {
             key={index}
             aria-roledescription="slide"
             aria-label={`${index + 1} of ${count}`}
-            className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-300"
+            className="bg-surface rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-300"
           >
-            <div className="flex items-center justify-between gap-3 px-5 sm:px-6 py-3 bg-[#f8fafc] border-b border-slate-200 text-xs font-medium text-slate-600">
+            <div className="flex items-center justify-between gap-3 px-5 sm:px-6 py-3 bg-soft border-b border-slate-200 text-xs font-medium text-slate-600">
               <span className="inline-flex items-center gap-2">
                 {SOURCE_ICON[t.source]}
                 {t.source}
@@ -182,7 +182,7 @@ export const TestimonialSection: React.FC = () => {
                 src={t.image}
                 alt={t.alt}
                 loading="lazy"
-                className="block h-auto mx-auto"
+                className="block h-auto mx-auto dark:rounded-lg"
                 style={{ width: '100%', maxWidth: t.width, minWidth: Math.min(t.width, 760) }}
               />
             </div>
@@ -190,12 +190,12 @@ export const TestimonialSection: React.FC = () => {
             <figcaption className="flex items-center gap-3 px-5 sm:px-6 py-4 border-t border-slate-200">
               <span
                 aria-hidden="true"
-                className="w-10 h-10 rounded-full bg-[#102a43] text-white text-sm font-bold flex items-center justify-center shrink-0"
+                className="w-10 h-10 rounded-full bg-navy-solid text-white text-sm font-bold flex items-center justify-center shrink-0"
               >
                 {initials(t.name)}
               </span>
               <span className="min-w-0">
-                <span className="block text-sm font-bold text-[#102a43]">{t.name}</span>
+                <span className="block text-sm font-bold text-ink">{t.name}</span>
                 {t.role && <span className="block text-xs text-slate-600">{t.role}</span>}
               </span>
             </figcaption>
@@ -207,7 +207,7 @@ export const TestimonialSection: React.FC = () => {
                 type="button"
                 onClick={() => go(index - 1)}
                 aria-label="Previous testimonial"
-                className="w-11 h-11 rounded-full border border-slate-300 text-[#102a43] hover:bg-slate-50 flex items-center justify-center cursor-pointer"
+                className="w-11 h-11 rounded-full border border-slate-300 text-ink hover:bg-slate-50 flex items-center justify-center cursor-pointer"
               >
                 <ChevronLeft className="w-5 h-5" aria-hidden="true" />
               </button>
@@ -224,7 +224,7 @@ export const TestimonialSection: React.FC = () => {
                   >
                     <span
                       className={`block h-2 rounded-full transition-all ${
-                        i === index ? 'w-5 bg-[#ea580c]' : 'w-2 bg-slate-400'
+                        i === index ? 'w-5 bg-accent' : 'w-2 bg-slate-400'
                       }`}
                     />
                   </button>
@@ -235,7 +235,7 @@ export const TestimonialSection: React.FC = () => {
                 type="button"
                 onClick={() => go(index + 1)}
                 aria-label="Next testimonial"
-                className="w-11 h-11 rounded-full border border-slate-300 text-[#102a43] hover:bg-slate-50 flex items-center justify-center cursor-pointer"
+                className="w-11 h-11 rounded-full border border-slate-300 text-ink hover:bg-slate-50 flex items-center justify-center cursor-pointer"
               >
                 <ChevronRight className="w-5 h-5" aria-hidden="true" />
               </button>

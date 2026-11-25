@@ -54,8 +54,8 @@ function Login({ onDone }: { onDone: () => void }) {
       <div className="max-w-sm mx-auto mt-10">
         <Card>
           <form onSubmit={submit} className="space-y-4">
-            <div className="w-11 h-11 rounded-xl bg-[#102a43] text-white flex items-center justify-center"><Lock className="w-5 h-5" /></div>
-            <h1 className="text-xl font-bold text-[#102a43]">Admin sign in</h1>
+            <div className="w-11 h-11 rounded-xl bg-navy-solid text-white flex items-center justify-center"><Lock className="w-5 h-5" /></div>
+            <h1 className="text-xl font-bold text-ink">Admin sign in</h1>
             <Field label="Password">
               <input type="password" autoFocus value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} />
             </Field>

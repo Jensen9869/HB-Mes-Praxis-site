@@ -16,8 +16,8 @@ export const PaymentResultModal: React.FC<Props> = ({ result, onClose }) => {
       role="dialog"
       aria-modal="true"
     >
-      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        <div className="bg-[#102a43] text-white px-6 py-4 flex items-center justify-between">
+      <div className="bg-surface rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="bg-navy text-white px-6 py-4 flex items-center justify-between">
           <h2 className="text-lg font-bold">
             {ok ? "Payment received" : "Payment cancelled"}
           </h2>
@@ -48,7 +48,7 @@ export const PaymentResultModal: React.FC<Props> = ({ result, onClose }) => {
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2.5 text-sm font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-xl transition-colors"
+            className="px-6 py-2.5 text-sm font-semibold text-white bg-accent hover:bg-accent-hover rounded-xl transition-colors"
           >
             Close
           </button>

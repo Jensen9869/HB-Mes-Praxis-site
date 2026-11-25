@@ -8,18 +8,18 @@ export const SkillsSection: React.FC = () => {
   const { technical, professional, disclaimer } = SKILLS_CONFIG;
 
   return (
-    <section id="skills" className="py-16 sm:py-24 bg-[#f8fafc] scroll-mt-20">
+    <section id="skills" className="py-16 sm:py-24 bg-soft scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
-          <p className="text-xs sm:text-sm font-semibold tracking-wider text-[#ea580c] uppercase mb-2">
+          <p className="text-xs sm:text-sm font-semibold tracking-wider text-accent-ink uppercase mb-2">
             Curriculum Architecture
           </p>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#102a43] tracking-tight mb-4 text-balance">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-ink tracking-tight mb-4 text-balance">
             Build the skills that travel with you.
           </h2>
-          <p className="text-base text-[#334155] leading-relaxed">
+          <p className="text-base text-body leading-relaxed">
             Gain hard craft competencies in your discipline paired with the essential professional and collaborative habits employers value across every industry.
           </p>
         </div>
@@ -28,14 +28,14 @@ export const SkillsSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           
           {/* Column 1: Technical Skills */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-sm">
+          <div className="bg-surface rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-sm">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-orange-100 text-[#ea580c] flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-orange-100 text-accent-ink flex items-center justify-center">
                   <Terminal className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-[#102a43]">Technical Skills</h3>
+                  <h3 className="text-xl font-bold text-ink">Technical Skills</h3>
                   <p className="text-xs text-slate-500">Discipline-specific pathways</p>
                 </div>
               </div>
@@ -48,11 +48,11 @@ export const SkillsSection: React.FC = () => {
                 onClick={() => setActiveTechnicalTrack('swe')}
                 className={`flex-1 py-2 px-3 rounded-md transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${
                   activeTechnicalTrack === 'swe'
-                    ? 'bg-white text-[#102a43] shadow-xs font-semibold'
-                    : 'text-slate-600 hover:text-[#102a43]'
+                    ? 'bg-surface text-ink shadow-xs font-semibold'
+                    : 'text-slate-600 hover:text-ink'
                 }`}
               >
-                <Terminal className="w-4 h-4 text-[#ea580c]" />
+                <Terminal className="w-4 h-4 text-accent-ink" />
                 <span>Software Engineering</span>
               </button>
               <button
@@ -60,11 +60,11 @@ export const SkillsSection: React.FC = () => {
                 onClick={() => setActiveTechnicalTrack('hr')}
                 className={`flex-1 py-2 px-3 rounded-md transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${
                   activeTechnicalTrack === 'hr'
-                    ? 'bg-white text-[#102a43] shadow-xs font-semibold'
-                    : 'text-slate-600 hover:text-[#102a43]'
+                    ? 'bg-surface text-ink shadow-xs font-semibold'
+                    : 'text-slate-600 hover:text-ink'
                 }`}
               >
-                <Users2 className="w-4 h-4 text-[#0284c7]" />
+                <Users2 className="w-4 h-4 text-sky-ink" />
                 <span>Human Resources</span>
               </button>
             </div>
@@ -78,7 +78,7 @@ export const SkillsSection: React.FC = () => {
                 <div className="space-y-2.5">
                   {technical.softwareEngineering.items.map((skill, idx) => (
                     <div key={idx} className="flex items-start gap-3 p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                      <CheckCircle2 className="w-4 h-4 text-[#ea580c] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-accent-ink shrink-0 mt-0.5" />
                       <span className="text-sm font-medium text-slate-800">{skill}</span>
                     </div>
                   ))}
@@ -95,7 +95,7 @@ export const SkillsSection: React.FC = () => {
                 <div className="space-y-2.5">
                   {technical.hr.items.map((skill, idx) => (
                     <div key={idx} className="flex items-start gap-3 p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                      <CheckCircle2 className="w-4 h-4 text-[#0284c7] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-sky-ink shrink-0 mt-0.5" />
                       <span className="text-sm font-medium text-slate-800">{skill}</span>
                     </div>
                   ))}
@@ -105,14 +105,14 @@ export const SkillsSection: React.FC = () => {
           </div>
 
           {/* Column 2: Professional Skills */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-sm">
+          <div className="bg-surface rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-sm">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-sky-100 text-[#0284c7] flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-ink flex items-center justify-center">
                   <Award className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-[#102a43]">Professional Skills</h3>
+                  <h3 className="text-xl font-bold text-ink">Professional Skills</h3>
                   <p className="text-xs text-slate-500">Universal workplace competencies</p>
                 </div>
               </div>
@@ -125,7 +125,7 @@ export const SkillsSection: React.FC = () => {
             <div className="space-y-2.5">
               {professional.map((skill, idx) => (
                 <div key={idx} className="flex items-start gap-3 p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                  <CheckCircle2 className="w-4 h-4 text-[#0284c7] shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-4 h-4 text-sky-ink shrink-0 mt-0.5" />
                   <span className="text-sm font-medium text-slate-800">{skill}</span>
                 </div>
               ))}

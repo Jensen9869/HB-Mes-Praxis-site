@@ -3,7 +3,7 @@ import { Briefcase, Lightbulb, CheckCircle2, ShieldAlert } from 'lucide-react';
 
 export const EmploymentEntrepreneurshipSection: React.FC = () => {
   return (
-    <section className="py-16 sm:py-24 bg-[#102a43] text-white">
+    <section className="py-16 sm:py-24 bg-navy text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -64,7 +64,7 @@ export const EmploymentEntrepreneurshipSection: React.FC = () => {
           {/* Path 2: ENTREPRENEURSHIP */}
           <div className="bg-slate-800/60 rounded-2xl p-6 sm:p-8 border border-white/10 flex flex-col justify-between">
             <div>
-              <div className="w-12 h-12 rounded-xl bg-orange-500/10 text-[#ea580c] flex items-center justify-center mb-6">
+              <div className="w-12 h-12 rounded-xl bg-orange-500/10 text-accent-ink flex items-center justify-center mb-6">
                 <Lightbulb className="w-6 h-6" aria-hidden="true" />
               </div>
 

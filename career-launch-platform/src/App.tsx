@@ -89,7 +89,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f8fafc] text-[#334155] font-sans selection:bg-[#ea580c]/15 selection:text-[#ea580c]">
+    <div className="min-h-screen flex flex-col bg-soft text-body font-sans selection:bg-accent/15 selection:text-accent-ink">
       {/* SECTION 1 — Announcement bar */}
       <AnnouncementBar
         onExploreClick={() => handleNavigateSection("programmes")}

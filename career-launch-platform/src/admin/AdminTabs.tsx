@@ -6,7 +6,7 @@ export const AdminTabs: React.FC<{ current: "applications" | "mentors" }> = ({ c
     <Link
       to={to}
       className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
-        current === key ? "bg-[#102a43] text-white" : "text-slate-600 hover:text-[#102a43] hover:bg-white"
+        current === key ? "bg-navy-solid text-white" : "text-slate-600 hover:text-ink hover:bg-surface"
       }`}
     >
       {label}

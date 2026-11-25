@@ -58,8 +58,8 @@ export default function AdminList({ onSignOut }: { onSignOut: () => void }) {
     >
       <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
         <div>
-          <p className="text-xs font-bold tracking-wider text-[#ea580c] uppercase mb-1">Career Launch</p>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#102a43] tracking-tight">Applications</h1>
+          <p className="text-xs font-bold tracking-wider text-accent-ink uppercase mb-1">Career Launch</p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">Applications</h1>
         </div>
         <div className="relative w-full sm:w-80">
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email, institution…" className={`${inputCls} pl-9`} />
@@ -104,7 +104,7 @@ export default function AdminList({ onSignOut }: { onSignOut: () => void }) {
                 {data.rows.map((r) => (
                   <tr key={r.id} className="hover:bg-slate-50">
                     <td className="px-5 py-3">
-                      <Link to={`/admin/enrolments/${r.id}`} className="font-semibold text-[#102a43] hover:text-[#ea580c]">{r.full_name}</Link>
+                      <Link to={`/admin/enrolments/${r.id}`} className="font-semibold text-ink hover:text-accent-ink">{r.full_name}</Link>
                       <div className="text-xs text-slate-500">{r.email}</div>
                     </td>
                     <td className="px-3 py-3 text-slate-600">{r.institution || "—"}</td>
@@ -114,12 +114,12 @@ export default function AdminList({ onSignOut }: { onSignOut: () => void }) {
                     </td>
                     <td className="px-3 py-3"><StatusPill status={r.status} /></td>
                     <td className="px-3 py-3 text-right tabular-nums whitespace-nowrap">
-                      <div className="font-semibold text-[#102a43]">{money(r.paid_total)}</div>
+                      <div className="font-semibold text-ink">{money(r.paid_total)}</div>
                       <div className="text-xs text-slate-500">{r.paid_count} payment{r.paid_count === 1 ? "" : "s"}</div>
                     </td>
                     <td className="px-3 py-3 text-slate-600 whitespace-nowrap">{fmtDate(r.created_at)}</td>
                     <td className="px-3 py-3 text-right">
-                      <Link to={`/admin/enrolments/${r.id}`} className="inline-flex items-center text-[#ea580c] font-semibold text-xs">
+                      <Link to={`/admin/enrolments/${r.id}`} className="inline-flex items-center text-accent-ink font-semibold text-xs">
                         Open <ChevronRight className="w-4 h-4" />
                       </Link>
                     </td>
@@ -139,7 +139,7 @@ const Chip: React.FC<{ active: boolean; onClick: () => void; children: React.Rea
     type="button"
     onClick={onClick}
     className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
-      active ? "bg-[#102a43] text-white border-[#102a43]" : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
+      active ? "bg-navy-solid text-white border-navy-solid" : "bg-surface text-slate-600 border-slate-200 hover:border-slate-400"
     } [&>b]:ml-1 [&>b]:font-bold`}
   >
     {children}

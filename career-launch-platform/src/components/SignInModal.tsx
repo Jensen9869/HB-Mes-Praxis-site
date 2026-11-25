@@ -50,8 +50,8 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
       aria-modal="true"
       aria-labelledby="signin-modal-title"
     >
-      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        <div className="bg-[#102a43] text-white px-6 py-5 flex items-center justify-between">
+      <div className="bg-surface rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="bg-navy text-white px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <LogIn className="w-5 h-5 text-[#38bdf8]" />
             <h2 id="signin-modal-title" className="text-lg font-bold">Student &amp; Applicant Portal</h2>
@@ -76,7 +76,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="student@university.edu"
-                    className="w-full pl-9 pr-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
+                    className="w-full pl-9 pr-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:border-accent focus:ring-1 focus:ring-accent"
                   />
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 </div>
@@ -87,7 +87,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
               <button
                 type="submit"
                 disabled={isSending}
-                className="w-full py-2.5 px-4 font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-lg transition-colors text-sm shadow-xs cursor-pointer disabled:opacity-60"
+                className="w-full py-2.5 px-4 font-semibold text-white bg-accent hover:bg-accent-hover rounded-lg transition-colors text-sm shadow-xs cursor-pointer disabled:opacity-60"
               >
                 {isSending ? "Sending…" : "Send Secure Magic Login Link"}
               </button>
@@ -97,7 +97,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose }) => 
               <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-[#102a43]">Check your email</h3>
+              <h3 className="text-lg font-bold text-ink">Check your email</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
                 If <strong>{email}</strong> has an enrolment with us, a one-time sign-in link is on its way. Click it and this page will take you to your portal automatically.
               </p>

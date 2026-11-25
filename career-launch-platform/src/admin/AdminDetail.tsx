@@ -52,12 +52,12 @@ export default function AdminDetail() {
       wide
       right={<Link to="/admin" className="inline-flex items-center gap-1.5 text-slate-300 hover:text-white"><ArrowLeft className="w-4 h-4" /> All applications</Link>}
     >
-      {toast && <div className="fixed top-20 right-4 z-50 bg-[#102a43] text-white text-sm px-4 py-2.5 rounded-lg shadow-lg">{toast}</div>}
+      {toast && <div className="fixed top-20 right-4 z-50 bg-navy-solid text-white text-sm px-4 py-2.5 rounded-lg shadow-lg">{toast}</div>}
 
       <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
         <div>
-          <p className="text-xs font-bold tracking-wider text-[#ea580c] uppercase mb-1">{programmeLabel(e.programme)}</p>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#102a43] tracking-tight">{e.full_name}</h1>
+          <p className="text-xs font-bold tracking-wider text-accent-ink uppercase mb-1">{programmeLabel(e.programme)}</p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">{e.full_name}</h1>
           <p className="text-sm text-slate-500 mt-1">{e.email} · applied {fmtDate(e.created_at, true)}</p>
         </div>
         <StatusPill status={e.status} className="text-sm px-3 py-1.5" />
@@ -272,7 +272,7 @@ function EmailCard({ d, onSent }: { d: Detail; onSent: () => void }) {
 function PaymentsCard({ payments }: { payments: Detail["payments"] }) {
   const total = payments.reduce((a, p) => a + p.amount, 0);
   return (
-    <Card title="Payments" action={<span className="text-sm font-bold text-[#102a43] tabular-nums">{money(total)} total</span>}>
+    <Card title="Payments" action={<span className="text-sm font-bold text-ink tabular-nums">{money(total)} total</span>}>
       {payments.length === 0 ? (
         <p className="text-sm text-slate-500">No payments received.</p>
       ) : (
@@ -287,7 +287,7 @@ function PaymentsCard({ payments }: { payments: Detail["payments"] }) {
               <tr key={p.id}>
                 <td className="py-2.5 whitespace-nowrap">{fmtDate(p.paid_at, true)}</td>
                 <td className="py-2.5 font-mono text-xs text-slate-500">{p.provider_invoice_id}</td>
-                <td className="py-2.5 text-right font-semibold text-[#102a43] tabular-nums">{money(p.amount, p.currency)}</td>
+                <td className="py-2.5 text-right font-semibold text-ink tabular-nums">{money(p.amount, p.currency)}</td>
               </tr>
             ))}
           </tbody>
@@ -321,7 +321,7 @@ function StudentCard({ d, onSaved }: { d: Detail; onSaved: () => void }) {
   return (
     <Card
       title="Student"
-      action={!editing && <button onClick={() => setEditing(true)} className="text-xs font-semibold text-[#ea580c] inline-flex items-center gap-1 cursor-pointer"><Pencil className="w-3.5 h-3.5" /> Edit</button>}
+      action={!editing && <button onClick={() => setEditing(true)} className="text-xs font-semibold text-accent-ink inline-flex items-center gap-1 cursor-pointer"><Pencil className="w-3.5 h-3.5" /> Edit</button>}
     >
       {editing ? (
         <div className="space-y-3">
@@ -332,7 +332,7 @@ function StudentCard({ d, onSaved }: { d: Detail; onSaved: () => void }) {
         </div>
       ) : (
         <dl className="text-sm space-y-2.5">
-          <Row k="Email"><a href={`mailto:${e.email}`} className="text-[#ea580c] break-all">{e.email}</a></Row>
+          <Row k="Email"><a href={`mailto:${e.email}`} className="text-accent-ink break-all">{e.email}</a></Row>
           <Row k="Institution">{e.institution || "—"}</Row>
           <Row k="Graduation year">{e.graduation_year ?? "—"}</Row>
           <Row k="Account created">{fmtDate(e.user_created_at)}</Row>
@@ -344,7 +344,7 @@ function StudentCard({ d, onSaved }: { d: Detail; onSaved: () => void }) {
           <ul className="space-y-1.5">
             {d.otherEnrolments.map((o) => (
               <li key={o.id} className="text-sm flex items-center justify-between gap-2">
-                <Link to={`/admin/enrolments/${o.id}`} className="text-[#102a43] hover:text-[#ea580c] truncate">{programmeLabel(o.programme)}</Link>
+                <Link to={`/admin/enrolments/${o.id}`} className="text-ink hover:text-accent-ink truncate">{programmeLabel(o.programme)}</Link>
                 <StatusPill status={o.status} />
               </li>
             ))}
@@ -366,7 +366,7 @@ function EnrolmentInfo({ e }: { e: Detail["enrolment"] }) {
         <Row k="Approved">{e.approved_at ? fmtDate(e.approved_at, true) : "—"}</Row>
         <Row k="PayPal subscription">
           {e.provider_subscription_id ? (
-            <a href={`https://www.paypal.com/billing/subscriptions/${e.provider_subscription_id}`} target="_blank" rel="noopener" className="font-mono text-xs text-[#ea580c] inline-flex items-center gap-1">
+            <a href={`https://www.paypal.com/billing/subscriptions/${e.provider_subscription_id}`} target="_blank" rel="noopener" className="font-mono text-xs text-accent-ink inline-flex items-center gap-1">
               {e.provider_subscription_id} <ExternalLink className="w-3 h-3" />
             </a>
           ) : "—"}
@@ -375,7 +375,7 @@ function EnrolmentInfo({ e }: { e: Detail["enrolment"] }) {
       </dl>
       {e.status === "awaiting_payment" && (
         <p className="text-xs text-slate-500 mt-4">
-          Payment link: <a href={apiUrl(`/api/payments/paypal/start?enrolment=${e.id}`)} className="text-[#ea580c] break-all">{apiUrl(`/api/payments/paypal/start?enrolment=${e.id}`)}</a>
+          Payment link: <a href={apiUrl(`/api/payments/paypal/start?enrolment=${e.id}`)} className="text-accent-ink break-all">{apiUrl(`/api/payments/paypal/start?enrolment=${e.id}`)}</a>
         </p>
       )}
     </Card>
@@ -391,7 +391,7 @@ function HistoryCard({ d }: { d: Detail }) {
         <ol className="relative border-l border-slate-200 ml-2 space-y-4">
           {d.log.map((l) => (
             <li key={l.id} className="pl-4">
-              <span className="absolute -left-1.5 mt-1.5 w-3 h-3 rounded-full bg-[#38bdf8] border-2 border-white" />
+              <span className="absolute -left-1.5 mt-1.5 w-3 h-3 rounded-full bg-[#38bdf8] border-2 border-surface" />
               <div className="text-sm">
                 {l.from_status && <><StatusPill status={l.from_status} /> → </>}<StatusPill status={l.to_status} />
               </div>
@@ -439,7 +439,7 @@ function MentorCard({ d, onChanged }: { d: Detail; onChanged: () => void }) {
     <Card title="Mentor">
       {d.mentor ? (
         <p className="text-sm mb-3">
-          <span className="font-semibold text-[#102a43]">{d.mentor.full_name}</span>
+          <span className="font-semibold text-ink">{d.mentor.full_name}</span>
           <span className="text-slate-500"> · {d.mentor.email}</span>
           {!d.mentor.active && <span className="ml-2 text-[10px] uppercase tracking-wider text-rose-600">inactive</span>}
         </p>
@@ -449,7 +449,7 @@ function MentorCard({ d, onChanged }: { d: Detail; onChanged: () => void }) {
       {options === null ? (
         <p className="text-xs text-slate-400">Loading mentors…</p>
       ) : options.length === 0 ? (
-        <p className="text-xs text-slate-500">No active mentors. <Link to="/admin/mentors" className="text-[#ea580c] font-semibold">Add one →</Link></p>
+        <p className="text-xs text-slate-500">No active mentors. <Link to="/admin/mentors" className="text-accent-ink font-semibold">Add one →</Link></p>
       ) : (
         <div className="space-y-3">
           <select value={sel} onChange={(e) => setSel(e.target.value)} className={inputCls}>
@@ -477,7 +477,7 @@ function MentoringCard({ list }: { list: Detail["mentoring"] }) {
         {list.map((a) => (
           <li key={a.id} className="text-sm flex items-center justify-between gap-2">
             <div className="min-w-0">
-              <Link to={`/admin/enrolments/${a.id}`} className="font-medium text-[#102a43] hover:text-[#ea580c]">{a.full_name}</Link>
+              <Link to={`/admin/enrolments/${a.id}`} className="font-medium text-ink hover:text-accent-ink">{a.full_name}</Link>
               <div className="text-xs text-slate-500">{trackLabel(a.track)}</div>
             </div>
             <StatusPill status={a.status} />
@@ -489,5 +489,5 @@ function MentoringCard({ list }: { list: Detail["mentoring"] }) {
 }
 
 const Row: React.FC<{ k: string; children: React.ReactNode }> = ({ k, children }) => (
-  <div><dt className="text-xs text-slate-500">{k}</dt><dd className="font-medium text-[#102a43]">{children}</dd></div>
+  <div><dt className="text-xs text-slate-500">{k}</dt><dd className="font-medium text-ink">{children}</dd></div>
 );

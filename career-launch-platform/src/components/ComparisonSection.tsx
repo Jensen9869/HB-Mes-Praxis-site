@@ -14,18 +14,18 @@ interface ComparisonSectionProps {
 
 export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onSelectPlan }) => {
   return (
-    <section className="py-16 sm:py-24 bg-white border-b border-slate-200/80">
+    <section className="py-16 sm:py-24 bg-surface border-b border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
-          <p className="text-xs sm:text-sm font-semibold tracking-wider text-[#ea580c] uppercase mb-2">
+          <p className="text-xs sm:text-sm font-semibold tracking-wider text-accent-ink uppercase mb-2">
             Side-by-Side Evaluation
           </p>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#102a43] tracking-tight mb-4 text-balance">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-ink tracking-tight mb-4 text-balance">
             Which programme is right for you?
           </h2>
-          <p className="text-base text-[#334155] leading-relaxed">
+          <p className="text-base text-body leading-relaxed">
             Compare programme structures, fees, and learning goals to choose the right fit for your academic timetable and career ambitions.
           </p>
         </div>
@@ -38,18 +38,18 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onSelectPl
                 <th className="py-5 px-6 text-sm font-semibold text-slate-700 w-1/4">
                   Feature & Details
                 </th>
-                <th className="py-5 px-6 text-base font-bold text-[#102a43] w-[37.5%] bg-orange-50/40 border-l border-slate-200">
+                <th className="py-5 px-6 text-base font-bold text-ink w-[37.5%] bg-orange-50/40 border-l border-slate-200">
                   <div className="flex items-center justify-between">
                     <span>Apprenticeship Programme</span>
-                    <span className="text-xs font-semibold text-[#ea580c] bg-orange-100 px-2 py-0.5 rounded">
+                    <span className="text-xs font-semibold text-accent-ink bg-orange-100 px-2 py-0.5 rounded">
                       12 Months
                     </span>
                   </div>
                 </th>
-                <th className="py-5 px-6 text-base font-bold text-[#102a43] w-[37.5%] bg-sky-50/40 border-l border-slate-200">
+                <th className="py-5 px-6 text-base font-bold text-ink w-[37.5%] bg-sky-50/40 border-l border-slate-200">
                   <div className="flex items-center justify-between">
                     <span>Professional Mentorship</span>
-                    <span className="text-xs font-semibold text-[#0284c7] bg-sky-100 px-2 py-0.5 rounded">
+                    <span className="text-xs font-semibold text-sky-ink bg-sky-100 px-2 py-0.5 rounded">
                       3 or 6 Months
                     </span>
                   </div>
@@ -60,7 +60,7 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onSelectPl
               {COMPARISON_TABLE.map((row, index) => (
                 <tr 
                   key={index}
-                  className={index % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}
+                  className={index % 2 === 0 ? 'bg-surface' : 'bg-slate-50/30'}
                 >
                   <td className="py-4 px-6 font-semibold text-slate-800">
                     {row.feature}
@@ -90,7 +90,7 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onSelectPl
                         durationMonths: PROGRAMMES_CONFIG.apprenticeship.durationMonths
                       })
                     }
-                    className="w-full py-3 px-4 text-sm font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-3 px-4 text-sm font-semibold text-white bg-accent hover:bg-accent-hover rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <span>Start Apprenticeship — $97/mo</span>
                     <ArrowRight className="w-4 h-4" />
@@ -107,7 +107,7 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onSelectPl
                         durationMonths: 6
                       })
                     }
-                    className="w-full py-3 px-4 text-sm font-semibold text-white bg-[#102a43] hover:bg-[#1a365d] rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-3 px-4 text-sm font-semibold text-white bg-navy-solid hover:bg-navy-solid-hover rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <span>Explore Mentorship — from $197/mo</span>
                     <ArrowRight className="w-4 h-4" />
@@ -122,10 +122,10 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onSelectPl
         <div className="lg:hidden space-y-6">
           
           {/* Mobile Card: Apprenticeship */}
-          <div className="bg-white rounded-xl border-2 border-orange-200 p-6 shadow-xs">
+          <div className="bg-surface rounded-xl border-2 border-orange-200 p-6 shadow-xs">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-200">
-              <h3 className="text-lg font-bold text-[#102a43]">Apprenticeship</h3>
-              <span className="text-xs font-semibold text-[#ea580c] bg-orange-100 px-2 py-1 rounded">
+              <h3 className="text-lg font-bold text-ink">Apprenticeship</h3>
+              <span className="text-xs font-semibold text-accent-ink bg-orange-100 px-2 py-1 rounded">
                 $97/mo (12 Mo)
               </span>
             </div>
@@ -150,7 +150,7 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onSelectPl
                     durationMonths: PROGRAMMES_CONFIG.apprenticeship.durationMonths
                   })
                 }
-                className="w-full py-3 px-4 font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-xl shadow-xs text-sm"
+                className="w-full py-3 px-4 font-semibold text-white bg-accent hover:bg-accent-hover rounded-xl shadow-xs text-sm"
               >
                 Start Apprenticeship ($97/mo)
               </button>
@@ -158,10 +158,10 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onSelectPl
           </div>
 
           {/* Mobile Card: Mentorship */}
-          <div className="bg-white rounded-xl border-2 border-sky-200 p-6 shadow-xs">
+          <div className="bg-surface rounded-xl border-2 border-sky-200 p-6 shadow-xs">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-200">
-              <h3 className="text-lg font-bold text-[#102a43]">Professional Mentorship</h3>
-              <span className="text-xs font-semibold text-[#0284c7] bg-sky-100 px-2 py-1 rounded">
+              <h3 className="text-lg font-bold text-ink">Professional Mentorship</h3>
+              <span className="text-xs font-semibold text-sky-ink bg-sky-100 px-2 py-1 rounded">
                 from $197/mo
               </span>
             </div>
@@ -186,7 +186,7 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onSelectPl
                     durationMonths: 6
                   })
                 }
-                className="w-full py-3 px-4 font-semibold text-white bg-[#102a43] hover:bg-[#1a365d] rounded-xl shadow-xs text-sm"
+                className="w-full py-3 px-4 font-semibold text-white bg-navy-solid hover:bg-navy-solid-hover rounded-xl shadow-xs text-sm"
               >
                 Choose Mentorship (from $197/mo)
               </button>

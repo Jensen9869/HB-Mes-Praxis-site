@@ -9,7 +9,7 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({ onExploreClick
   return (
     <aside 
       aria-label="Announcement"
-      className="bg-[#102a43] text-white text-xs sm:text-sm py-2.5 px-4 border-b border-white/10"
+      className="bg-navy text-white text-xs sm:text-sm py-2.5 px-4 border-b border-white/10"
     >
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-4 text-center">
         <span className="text-slate-200 font-medium">

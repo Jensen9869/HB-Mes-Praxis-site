@@ -30,14 +30,14 @@ export const CookieBanner: React.FC = () => {
     <div 
       role="region" 
       aria-label="Cookie and Privacy Consent"
-      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200 p-4 sm:p-5 text-xs text-slate-700 animate-in slide-in-from-bottom-5 duration-300"
+      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 bg-surface/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200 p-4 sm:p-5 text-xs text-slate-700 animate-in slide-in-from-bottom-5 duration-300"
     >
       <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-lg bg-orange-50 text-[#ea580c] flex items-center justify-center shrink-0 mt-0.5">
+        <div className="w-8 h-8 rounded-lg bg-orange-50 text-accent-ink flex items-center justify-center shrink-0 mt-0.5">
           <Shield className="w-4 h-4" />
         </div>
         <div className="space-y-2">
-          <p className="font-semibold text-sm text-[#102a43]">
+          <p className="font-semibold text-sm text-ink">
             Privacy & Performance Choice
           </p>
           <p className="text-slate-600 leading-relaxed">
@@ -47,7 +47,7 @@ export const CookieBanner: React.FC = () => {
             <button
               type="button"
               onClick={handleAccept}
-              className="py-1.5 px-3 bg-[#ea580c] hover:bg-[#c2410c] text-white rounded-lg font-semibold transition-colors cursor-pointer"
+              className="py-1.5 px-3 bg-accent hover:bg-accent-hover text-white rounded-lg font-semibold transition-colors cursor-pointer"
             >
               Accept Analytics
             </button>

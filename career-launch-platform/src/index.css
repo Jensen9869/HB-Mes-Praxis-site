@@ -1,5 +1,51 @@
 @import "tailwindcss";
 
+/* ──────────────────────────────────────────────────────────────────────────
+   LIGHT / DARK MODE
+   The mode is a class on <html>: no class = light, class="dark" = dark.
+   It is set before the page paints by the small script in index.html, and
+   switched by the ThemeToggle button (src/components/ThemeToggle.tsx).
+
+   Components do not hard-code colours. They use the names below
+   (text-ink, bg-surface, bg-soft, text-accent-ink …). To change a colour for
+   the whole site, change it here: light values in @theme, dark values in the
+   .dark block.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* `dark:` utilities (e.g. dark:bg-white) follow the class, not the device setting. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme static {
+  /* Text */
+  --color-ink: #102a43;          /* headings, strong text */
+  --color-body: #334155;         /* normal text */
+
+  /* Backgrounds */
+  --color-surface: #ffffff;      /* cards, modals, white sections */
+  --color-soft: #f8fafc;         /* page background, tinted sections and boxes */
+
+  /* Navy blocks */
+  --color-navy: #102a43;         /* large dark areas: top bar, footer, modal headers */
+  --color-navy-deep: #0b1c2e;    /* a darker box inside a navy area */
+  --color-navy-solid: #102a43;   /* small solid navy items: buttons, active tabs, avatars */
+  --color-navy-solid-hover: #1a365d;
+  --color-navy-solid-active: #0c1f33;
+
+  /* Brand orange */
+  --color-accent: #ea580c;       /* button backgrounds, borders, focus rings */
+  --color-accent-hover: #c2410c;
+  --color-accent-active: #9a3412;
+  --color-accent-ink: #ea580c;   /* orange text and icons */
+
+  /* Brand blue used as text on light backgrounds */
+  --color-sky-ink: #0284c7;
+  --color-sky-ink-strong: #0369a1;
+
+  /* Destructive buttons */
+  --color-danger: oklch(58.6% 0.253 17.585);
+  --color-danger-hover: oklch(51.4% 0.222 16.935);
+}
+
 @layer base {
   :root {
     --brand-primary: #ea580c;
@@ -9,14 +55,106 @@
     --brand-text: #334155;
   }
 
+  /* ── Dark values for the names above ─────────────────────────────────── */
+  .dark {
+    color-scheme: dark;
+
+    --color-ink: #f1f5f9;
+    --color-body: #cbd5e1;
+
+    --color-surface: #10233a;
+    --color-soft: #0a1727;
+
+    --color-navy: #0d1f35;
+    --color-navy-deep: #081424;
+    --color-navy-solid: #2a4a70;
+    --color-navy-solid-hover: #34597f;
+    --color-navy-solid-active: #24405f;
+
+    --color-accent-ink: #fb923c;
+    --color-sky-ink: #38bdf8;
+    --color-sky-ink-strong: #7dd3fc;
+
+    /* Tinted boxes (status pills, notices, icon squares): dark tint + light text.
+       50–300 are used as backgrounds and borders, 600–900 as text. */
+    --color-orange-50: color-mix(in oklab, #f97316 10%, var(--color-surface));
+    --color-orange-100: color-mix(in oklab, #f97316 18%, var(--color-surface));
+    --color-orange-200: color-mix(in oklab, #f97316 34%, var(--color-surface));
+    --color-orange-300: color-mix(in oklab, #f97316 50%, var(--color-surface));
+
+    --color-amber-50: color-mix(in oklab, #f59e0b 10%, var(--color-surface));
+    --color-amber-100: color-mix(in oklab, #f59e0b 18%, var(--color-surface));
+    --color-amber-200: color-mix(in oklab, #f59e0b 34%, var(--color-surface));
+    --color-amber-600: #fbbf24;
+    --color-amber-700: #fcd34d;
+    --color-amber-800: #fde68a;
+    --color-amber-900: #fef3c7;
+
+    --color-emerald-50: color-mix(in oklab, #10b981 10%, var(--color-surface));
+    --color-emerald-100: color-mix(in oklab, #10b981 18%, var(--color-surface));
+    --color-emerald-200: color-mix(in oklab, #10b981 34%, var(--color-surface));
+    --color-emerald-600: #34d399;
+    --color-emerald-700: #6ee7b7;
+
+    --color-sky-50: color-mix(in oklab, #0ea5e9 10%, var(--color-surface));
+    --color-sky-100: color-mix(in oklab, #0ea5e9 18%, var(--color-surface));
+    --color-sky-200: color-mix(in oklab, #0ea5e9 34%, var(--color-surface));
+    --color-sky-300: color-mix(in oklab, #0ea5e9 50%, var(--color-surface));
+    --color-sky-700: #7dd3fc;
+
+    --color-rose-50: color-mix(in oklab, #f43f5e 10%, var(--color-surface));
+    --color-rose-200: color-mix(in oklab, #f43f5e 34%, var(--color-surface));
+    --color-rose-600: #fb7185;
+    --color-rose-700: #fda4af;
+    --color-red-600: #f87171;
+
+    --color-violet-50: color-mix(in oklab, #8b5cf6 10%, var(--color-surface));
+    --color-violet-200: color-mix(in oklab, #8b5cf6 34%, var(--color-surface));
+    --color-violet-700: #c4b5fd;
+  }
+
+  /* ── Grey scale (slate) ──────────────────────────────────────────────────
+     In dark mode the greys flip: light greys become dark fills and borders,
+     dark greys become light text. */
+  .dark,
+  .dark .bg-surface,
+  .dark .bg-soft {
+    --color-slate-50: #162c46;
+    --color-slate-100: #1c3552;
+    --color-slate-200: #263f5c;
+    --color-slate-300: #3a5676;
+    --color-slate-400: #8a9db4;
+    --color-slate-500: #a3b3c7;
+    --color-slate-600: #bcc8d8;
+    --color-slate-700: #d0d9e5;
+    --color-slate-800: #e2e8f0;
+    --color-slate-900: #f1f5f9;
+  }
+
+  /* Navy areas are dark in both modes, so inside them the greys keep their
+     normal (light-mode) values and light-grey text stays readable. */
+  .dark .bg-navy,
+  .dark .bg-navy-deep {
+    --color-slate-50: oklch(98.4% 0.003 247.858);
+    --color-slate-100: oklch(96.8% 0.007 247.896);
+    --color-slate-200: oklch(92.9% 0.013 255.508);
+    --color-slate-300: oklch(86.9% 0.022 252.894);
+    --color-slate-400: oklch(70.4% 0.04 256.788);
+    --color-slate-500: oklch(55.4% 0.046 257.417);
+    --color-slate-600: oklch(44.6% 0.043 257.281);
+    --color-slate-700: oklch(37.2% 0.044 257.287);
+    --color-slate-800: oklch(27.9% 0.041 260.031);
+    --color-slate-900: oklch(20.8% 0.042 265.755);
+  }
+
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    color: #334155;
-    background-color: #f8fafc;
+    color: var(--color-body);
+    background-color: var(--color-soft);
   }
 
   h1, h2, h3, h4, h5, h6 {
-    color: #102a43;
+    color: var(--color-ink);
     letter-spacing: -0.02em;
   }
 }
@@ -28,6 +166,6 @@
 
 /* Focus styles for keyboard accessibility */
 :focus-visible {
-  outline: 2px solid #ea580c;
+  outline: 2px solid var(--color-accent-ink);
   outline-offset: 2px;
 }

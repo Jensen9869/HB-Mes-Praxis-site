@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Compass, ArrowLeft } from "lucide-react";
 import { BRAND_CONFIG } from "../config/platformConfig";
+import { ThemeToggle } from "./ThemeToggle";
 
 /** Page frame shared by the student portal and the admin panel. */
 export const PortalShell: React.FC<{
@@ -10,8 +11,8 @@ export const PortalShell: React.FC<{
   wide?: boolean;
   children: React.ReactNode;
 }> = ({ area, right, wide, children }) => (
-  <div className="min-h-screen flex flex-col bg-[#f8fafc] text-[#334155]">
-    <header className="bg-[#102a43] text-white">
+  <div className="min-h-screen flex flex-col bg-soft text-body">
+    <header className="bg-navy text-white">
       <div className={`${wide ? "max-w-7xl" : "max-w-5xl"} mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4`}>
         <Link to="/" className="flex items-center gap-2.5 shrink-0">
           <span className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#38bdf8] to-[#ea580c] flex items-center justify-center">
@@ -22,7 +23,8 @@ export const PortalShell: React.FC<{
             {area}
           </span>
         </Link>
-        <div className="flex items-center gap-3 text-sm">
+        <div className="flex items-center gap-1.5 sm:gap-3 text-sm [&_button]:whitespace-nowrap">
+          <ThemeToggle onNavy />
           <Link to="/" className="inline-flex items-center gap-1 text-slate-300 hover:text-white whitespace-nowrap">
             <ArrowLeft className="w-4 h-4" aria-hidden="true" /> <span className="hidden sm:inline">Main site</span>
           </Link>
@@ -35,8 +37,8 @@ export const PortalShell: React.FC<{
 
     <footer className="text-xs text-slate-500 text-center py-6">
       © {new Date().getFullYear()} {BRAND_CONFIG.name} ·{" "}
-      <a href="/legal/privacy.html" target="_blank" rel="noopener" className="hover:text-[#102a43]">Privacy</a> ·{" "}
-      <a href="/legal/terms.html" target="_blank" rel="noopener" className="hover:text-[#102a43]">Terms</a>
+      <a href="/legal/privacy.html" target="_blank" rel="noopener" className="hover:text-ink">Privacy</a> ·{" "}
+      <a href="/legal/terms.html" target="_blank" rel="noopener" className="hover:text-ink">Terms</a>
     </footer>
   </div>
 );
@@ -47,10 +49,10 @@ export const Card: React.FC<{ title?: string; action?: React.ReactNode; classNam
   className = "",
   children,
 }) => (
-  <section className={`bg-white rounded-2xl border border-slate-200 shadow-xs ${className}`}>
+  <section className={`bg-surface rounded-2xl border border-slate-200 shadow-xs ${className}`}>
     {(title || action) && (
       <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
-        {title && <h2 className="text-sm font-bold uppercase tracking-wider text-[#102a43]">{title}</h2>}
+        {title && <h2 className="text-sm font-bold uppercase tracking-wider text-ink">{title}</h2>}
         {action}
       </div>
     )}
@@ -62,10 +64,10 @@ export const Btn: React.FC<
   React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "danger" | "ghost"; size?: "sm" | "md" }
 > = ({ variant = "primary", size = "md", className = "", ...rest }) => {
   const v = {
-    primary: "bg-[#ea580c] hover:bg-[#c2410c] text-white",
-    secondary: "bg-[#102a43] hover:bg-[#1a365d] text-white",
-    danger: "bg-rose-600 hover:bg-rose-700 text-white",
-    ghost: "bg-white hover:bg-slate-50 text-[#102a43] border border-slate-300",
+    primary: "bg-accent hover:bg-accent-hover text-white",
+    secondary: "bg-navy-solid hover:bg-navy-solid-hover text-white",
+    danger: "bg-danger hover:bg-danger-hover text-white",
+    ghost: "bg-surface hover:bg-slate-50 text-ink border border-slate-300",
   }[variant];
   const s = size === "sm" ? "px-3 py-1.5 text-xs" : "px-4 py-2.5 text-sm";
   return (
@@ -84,7 +86,7 @@ export const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ 
 );
 
 export const inputCls =
-  "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c] outline-none";
+  "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-surface focus:border-accent focus:ring-1 focus:ring-accent outline-none";
 
 export const Spinner: React.FC<{ label?: string }> = ({ label = "Loading…" }) => (
   <div className="py-16 text-center text-sm text-slate-500">{label}</div>

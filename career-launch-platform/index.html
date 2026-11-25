@@ -3,6 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <!-- Light / dark mode: set before anything is drawn so the page never flashes the wrong mode.
+         Uses the visitor's saved choice, otherwise their device setting. See src/lib/useTheme.ts -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("theme");
+          var dark = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          if (dark) document.documentElement.classList.add("dark");
+        } catch (e) {}
+      })();
+    </script>
     <title>Your Career Launch Platform – Practical Apprenticeships & Mentorship</title>
     <meta name="description" content="Turn your potential into practical skills. Structured 12-month apprenticeships and 3-to-6 month professional mentorships for university and college students." />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,7 +64,7 @@
     }
     </script>
   </head>
-  <body class="bg-[#f8fafc] text-[#334155] antialiased selection:bg-[#ea580c]/15 selection:text-[#ea580c]">
+  <body class="bg-soft text-body antialiased selection:bg-accent/15 selection:text-accent-ink">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, ArrowUpRight, Compass, LayoutDashboard, LogOut } from 'lucide-react';
 import { BRAND_CONFIG } from '../config/platformConfig';
 import { useSession } from '../lib/useSession';
+import { ThemeToggle } from './ThemeToggle';
 
 interface NavbarProps {
   onChoosePath: () => void;
@@ -37,7 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all">
+    <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur-md border-b border-slate-200/80 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20 gap-8">
 
@@ -48,34 +49,34 @@ export const Navbar: React.FC<NavbarProps> = ({
               e.preventDefault();
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="flex items-center gap-2.5 text-[#102a43] hover:text-[#ea580c] transition-colors whitespace-nowrap shrink-0 group focus-visible:outline-[#ea580c]"
+            className="flex items-center gap-2.5 text-ink hover:text-accent-ink transition-colors whitespace-nowrap shrink-0 group focus-visible:outline-accent"
           >
             <span className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#102a43] to-[#ea580c] flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105">
               <Compass className="w-5 h-5 text-white" aria-hidden="true" />
             </span>
-            <span className="font-bold text-lg sm:text-xl tracking-tight text-[#102a43]">
+            <span className="font-bold text-lg sm:text-xl tracking-tight text-ink">
               {BRAND_CONFIG.name}
             </span>
           </a>
 
           {/* Zone 2: Desktop nav */}
-          <nav aria-label="Main Navigation" className="hidden md:flex items-center gap-7 text-sm font-medium text-[#334155]">
-            <button onClick={() => handleNavClick('how-it-works')} className="hover:text-[#ea580c] transition-colors whitespace-nowrap cursor-pointer py-1">How It Works</button>
-            <button onClick={() => handleNavClick('apprenticeship')} className="hover:text-[#ea580c] transition-colors whitespace-nowrap cursor-pointer py-1">Apprenticeship</button>
-            <button onClick={() => handleNavClick('mentorship')} className="hover:text-[#ea580c] transition-colors whitespace-nowrap cursor-pointer py-1">Mentorship</button>
-            <button onClick={() => handleNavClick('faq')} className="hover:text-[#ea580c] transition-colors whitespace-nowrap cursor-pointer py-1">FAQ</button>
+          <nav aria-label="Main Navigation" className="hidden md:flex items-center gap-7 text-sm font-medium text-body">
+            <button onClick={() => handleNavClick('how-it-works')} className="hover:text-accent-ink transition-colors whitespace-nowrap cursor-pointer py-1">How It Works</button>
+            <button onClick={() => handleNavClick('apprenticeship')} className="hover:text-accent-ink transition-colors whitespace-nowrap cursor-pointer py-1">Apprenticeship</button>
+            <button onClick={() => handleNavClick('mentorship')} className="hover:text-accent-ink transition-colors whitespace-nowrap cursor-pointer py-1">Mentorship</button>
+            <button onClick={() => handleNavClick('faq')} className="hover:text-accent-ink transition-colors whitespace-nowrap cursor-pointer py-1">FAQ</button>
 
             {signedIn ? (
               <>
-                <Link to="/portal" className="text-[#102a43] hover:text-[#ea580c] transition-colors whitespace-nowrap py-1 flex items-center gap-1.5 font-semibold">
+                <Link to="/portal" className="text-ink hover:text-accent-ink transition-colors whitespace-nowrap py-1 flex items-center gap-1.5 font-semibold">
                   <LayoutDashboard className="w-4 h-4" aria-hidden="true" /> My Portal
                 </Link>
-                <button onClick={handleSignOut} className="text-slate-500 hover:text-[#102a43] transition-colors whitespace-nowrap cursor-pointer py-1 flex items-center gap-1">
+                <button onClick={handleSignOut} className="text-slate-500 hover:text-ink transition-colors whitespace-nowrap cursor-pointer py-1 flex items-center gap-1">
                   <LogOut className="w-3.5 h-3.5" aria-hidden="true" /> Sign out
                 </button>
               </>
             ) : (
-              <button onClick={handleSignIn} className="text-slate-600 hover:text-[#102a43] transition-colors whitespace-nowrap cursor-pointer py-1 flex items-center gap-1 font-medium">
+              <button onClick={handleSignIn} className="text-slate-600 hover:text-ink transition-colors whitespace-nowrap cursor-pointer py-1 flex items-center gap-1 font-medium">
                 Sign In
                 <ArrowUpRight className="w-3.5 h-3.5 opacity-60" aria-hidden="true" />
               </button>
@@ -83,10 +84,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Zone 3: CTA */}
-          <div className="hidden md:flex items-center gap-4 shrink-0">
+          <div className="hidden md:flex items-center gap-3 shrink-0">
+            <ThemeToggle />
             <button
               onClick={onChoosePath}
-              className="px-5 py-2.5 text-sm font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] active:bg-[#9a3412] rounded-lg shadow-sm hover:shadow transition-all whitespace-nowrap cursor-pointer"
+              className="px-5 py-2.5 text-sm font-semibold text-white bg-accent hover:bg-accent-hover active:bg-accent-active rounded-lg shadow-sm hover:shadow transition-all whitespace-nowrap cursor-pointer"
             >
               Choose Your Path
             </button>
@@ -97,7 +99,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-700 hover:text-[#102a43] hover:bg-slate-100 focus-visible:outline-[#ea580c]"
+              className="p-2 rounded-lg text-slate-700 hover:text-ink hover:bg-slate-100 focus-visible:outline-accent"
               aria-expanded={mobileMenuOpen}
               aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
             >
@@ -109,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-3 pb-6 shadow-xl animate-in slide-in-from-top-2 duration-200">
+        <div className="md:hidden bg-surface border-b border-slate-200 px-4 pt-3 pb-6 shadow-xl animate-in slide-in-from-top-2 duration-200">
           <nav className="flex flex-col gap-3 text-base font-medium text-slate-800">
             <button onClick={() => handleNavClick('how-it-works')} className="text-left py-2 px-3 rounded-md hover:bg-slate-50 transition-colors">How It Works</button>
             <button onClick={() => handleNavClick('apprenticeship')} className="text-left py-2 px-3 rounded-md hover:bg-slate-50 transition-colors">Apprenticeship ($97/mo)</button>
@@ -119,7 +121,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {signedIn ? (
               <>
-                <Link to="/portal" onClick={() => setMobileMenuOpen(false)} className="text-left py-2 px-3 rounded-md text-[#102a43] font-semibold hover:bg-slate-50 transition-colors flex items-center justify-between">
+                <Link to="/portal" onClick={() => setMobileMenuOpen(false)} className="text-left py-2 px-3 rounded-md text-ink font-semibold hover:bg-slate-50 transition-colors flex items-center justify-between">
                   <span>My Portal</span>
                   <LayoutDashboard className="w-4 h-4" />
                 </Link>
@@ -135,10 +137,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
+            {/* Light / dark mode (the phone header bar has no room for the button) */}
+            <div className="flex items-center justify-between py-1 pl-3 pr-1 text-slate-600">
+              <span>Dark mode</span>
+              <ThemeToggle />
+            </div>
+
             <div className="pt-2">
               <button
                 onClick={() => { setMobileMenuOpen(false); onChoosePath(); }}
-                className="w-full py-3 text-center font-semibold text-white bg-[#ea580c] hover:bg-[#c2410c] rounded-lg shadow-sm"
+                className="w-full py-3 text-center font-semibold text-white bg-accent hover:bg-accent-hover rounded-lg shadow-sm"
               >
                 Choose Your Path
               </button>
