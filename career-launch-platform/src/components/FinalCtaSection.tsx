@@ -1,6 +1,6 @@
-import React from 'react';
-import { ArrowRight, Compass } from 'lucide-react';
-import { BRAND_CONFIG, PROGRAMMES_CONFIG } from '../config/platformConfig';
+import React from "react";
+import { ArrowRight } from "lucide-react";
+import { Logo } from "./Logo";
 
 interface FinalCtaSectionProps {
   onSelectApprenticeship: () => void;
@@ -18,11 +18,8 @@ export const FinalCtaSection: React.FC<FinalCtaSectionProps> = ({
       <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-accent/8 rounded-full blur-3xl pointer-events-none -z-0" />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        
         {/* Simple Brand Emblem */}
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#102a43] to-[#ea580c] text-white flex items-center justify-center mx-auto mb-6 shadow-sm">
-          <Compass className="w-6 h-6" aria-hidden="true" />
-        </div>
+        <Logo className="w-20 h-20 mx-auto mb-6" />
 
         {/* Section Headline */}
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-ink tracking-tight mb-4 text-balance">
@@ -31,7 +28,8 @@ export const FinalCtaSection: React.FC<FinalCtaSectionProps> = ({
 
         {/* Supporting text */}
         <p className="text-base sm:text-lg text-body max-w-2xl mx-auto mb-8 leading-relaxed">
-          Start developing the skills, experience and confidence to take your next step.
+          Start developing the skills, experience and confidence to take your
+          next step.
         </p>
 
         {/* CTAs */}
@@ -41,9 +39,12 @@ export const FinalCtaSection: React.FC<FinalCtaSectionProps> = ({
             className="w-full sm:w-auto px-8 py-4 text-base font-semibold text-white bg-accent hover:bg-accent-hover active:bg-accent-active rounded-xl shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 group cursor-pointer"
           >
             <span>Start Your Apprenticeship — $97/mo</span>
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+            <ArrowRight
+              className="w-4 h-4 transition-transform group-hover:translate-x-1"
+              aria-hidden="true"
+            />
           </button>
-          
+
           <button
             onClick={onSelectMentorship}
             className="w-full sm:w-auto px-8 py-4 text-base font-semibold text-ink bg-surface hover:bg-slate-50 border border-slate-300 rounded-xl shadow-2xs hover:border-slate-400 transition-all flex items-center justify-center gap-2 cursor-pointer"
@@ -54,9 +55,9 @@ export const FinalCtaSection: React.FC<FinalCtaSectionProps> = ({
 
         {/* Concise Disclosure Note */}
         <p className="text-xs text-slate-500 max-w-md mx-auto">
-          Review programme details, duration, total fees and terms before enrolling.
+          Review programme details, duration, total fees and terms before
+          enrolling.
         </p>
-
       </div>
     </section>
   );
